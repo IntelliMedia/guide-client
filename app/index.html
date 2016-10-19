@@ -54,92 +54,21 @@
 			<div class="row">
 				<div class="col-sm-3">
           <h3>Target Drake</h3>
-          <img src="http://demo.geniverse.concord.org/resources/drakes/images/ch_f_noWing_fore_a5_flair_horn_noRostral_healthy.png" id="sc3335">
+          <img src="http://demo.geniverse.concord.org/resources/drakes/images/ch_f_noWing_fore_a5_flair_horn_noRostral_healthy.png" id="targetDrakeImage"/>
 				</div>
 				<div class="col-sm-3">   
           <h3>Your Drake</h3>
-          <img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png" id="sc3335">               
+          <img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png" id="yourDrakeImage"/>               
         </div>
 			</div>
    </div>
 
 		<div class="container">    
+			<h3>Chromosome Control</h3>
 			<div class="row">
-				<div class="col-sm-3">
-          <h3>Parent 1</h3>
-					<div class="dropdown">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>          
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>          
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
+				<div class="col-sm-3" id="left-chromosomes">         
 				</div>
-				<div class="col-sm-3">
-          <h3>Parent 2</h3>
-					<div class="dropdown">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>          
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>          
-					<div class="dropdown top7">
-						<button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Dropdown Example<span class="caret"></span></button>
-						<ul class="dropdown-menu">
-							<li><a href="#">Metallic</a></li>
-							<li><a href="#">Nonmetallic</a></li>
-						</ul>
-					</div>
+				<div class="col-sm-3" id="right-chromosomes">
 				</div>        
 			</div>                  
 		</div>    
@@ -170,6 +99,8 @@
     <!-- endbuild -->
     
     <!-- build:js scripts/main.js -->
+	<script src="scripts/biologica.js"></script>
+	<script src="scripts/biologicaExtensions.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
   </body>

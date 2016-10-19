@@ -2,21 +2,53 @@
 // Initialize Variables
 
 var guideServer = 'wss://guide.intellimedia.ncsu.edu';
-var guideProtocol = 'guide-protocol-v2'
+var guideProtocol = 'guide-protocol-v2';
+var imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
+var questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
 // Session-related variables
 var sequenceNumber = null;
 var currentUser = null;
 var currentSessionId = null;
 
+var targetDrake = null;
+var targetDrakeSex = null;
+var yourDrakeSex = null;
+var yourDrake = null;
+
+var drakeAlleles = "a:T,b:t,a:m,b:M,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
+
 //-----------------------------------------------------------------------
 // UI Functions
+$(".dropdown-menu li a").click(function(){
+  var selText = $(this).text();
+
+  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
+
+  var selectedValue = $(this).attr('data-value');
+  console.info('selected value:' + selectedValue);
+
+  var allele = yourDrake.genetics.getAlleleStringForTrait("wings");
+  console.info("before trait: " + allele);
+  yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", "w", "w");
+  yourDrake.genetics.genotype.replaceAlleleChromName(1, "b", "W", "w");
+
+  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
+                                      yourDrake.getAlleleString(), yourDrakeSex);
+
+  allele = yourDrake.genetics.getAlleleStringForTrait("wings");
+  console.info("after trait: " + allele);
+});
+
 document.getElementById('startSessionButton').addEventListener("click", startSession);
 document.getElementById('submitDrakeButton').addEventListener("click", submitDrake);
 document.getElementById('endSessionButton').addEventListener("click", endSession);
 
 //-----------------------------------------------------------------------
 // Connection Functions
+
+var traitsArray = ["metallic","wings","forelimbs","hindlimbs","nose"];
+createChromosomeDropdowns(traitsArray, new BioLogica.Organism(BioLogica.Species.Drake, ""));
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -65,6 +97,20 @@ function startSession() {
   // Send event to server
   socket.emit('event', JSON.stringify(event));
   updateSessionStatus(currentSessionId);
+
+  //targetDrake = new BioLogica.Organism(BioLogica.Species.Drake, "");
+
+  targetDrakeSex = Math.floor(2 * Math.random());
+  targetDrake = new BioLogica.Organism(BioLogica.Species.Drake,
+                                        drakeAlleles, targetDrakeSex);
+
+  yourDrakeSex = targetDrakeSex; //Math.floor(2 * Math.random());
+  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
+                                      targetDrake.getAlleleString(), yourDrakeSex);  
+
+  var filename = imageUrlBase + targetDrake.getImageName();
+  console.info('target image:' + filename);
+  document.getElementById('targetDrakeImage').src = filename;  
 }
 
 function endSession() {
@@ -86,6 +132,18 @@ function endSession() {
 }
 
 function submitDrake() {
+
+  //var mother = new BioLogica.Organism(BioLogica.Species.Drake, "a:H,b:H", BioLogica.FEMALE);
+  //var father = new BioLogica.Organism(BioLogica.Species.Drake, "a:H,b:H", BioLogica.MALE);
+  //var child = BioLogica.breed(mother, father);
+
+  //yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", prevAllele, $('#vl').val($(this).attr('data-value')));
+
+  console.info('alles:' + yourDrake.getAlleleString());
+  var filename = imageUrlBase + yourDrake.getImageName();
+  console.info('image:' + filename);
+  document.getElementById('yourDrakeImage').src = filename;
+
   var event = {
     "event": {
       "username": currentUser,
@@ -97,7 +155,7 @@ function submitDrake() {
       "target": "DRAKE",
       "context": {
         "correctPhenotype": {
-          "armor": "Five armor",
+          "scales": "Five armor",
           "tail": "Long tail",
           "forelimbs": "No forelimbs",
           "hindlimbs": "Hindlimbs",
@@ -109,7 +167,7 @@ function submitDrake() {
           "liveliness": "Alive"
         },
         "submittedPhenotype": {
-          "armor": "Five armor",
+          "scales": $('.parent1-scales-select').text(),
           "tail": "Long tail",
           "forelimbs": "No forelimbs",
           "hindlimbs": "Hindlimbs",
@@ -198,4 +256,52 @@ function showError(msg) {
 function showSuccess(msg) {
   console.info(msg);
   $('#success').showBootstrapAlertSuccess(msg, Bootstrap.ContentType.Text, true);
+}
+
+function createChromosomeDropdowns(traitsArray, organism) {
+
+  var openDropdownHtml = 
+    `<div class="btn-group">
+      <button class="btn dropdown-toggle chromsomeA-scales-select" type="button" data-toggle="dropdown">{0}<span class="caret"></span></button>
+        <ul class="dropdown-menu">`;
+
+  var itemHtml = `<li><a data-value="{1}" href="#">{0}</a></li>`;
+
+  var closeDropdownHtml = 
+    `   </ul>
+    </div>
+    <p>`;
+    
+  var leftDropdowns = "";
+  var rightDropdowns = "";
+ 
+  var traitsLength = traitsArray.length;
+  for (var i = 0; i < traitsLength; i++) {
+      
+      leftDropdowns += sprintf(openDropdownHtml, traitsArray[i]);
+      rightDropdowns += sprintf(openDropdownHtml, traitsArray[i]);
+
+      var alleleLabels = organism.getAllelesAndLabels(traitsArray[i]);
+      console.info("alleleLabels: " + JSON.stringify(alleleLabels));
+      Object.keys(alleleLabels).forEach(function(key) {
+          leftDropdowns += sprintf(itemHtml, key, alleleLabels[key]);
+          rightDropdowns += sprintf(itemHtml, key, alleleLabels[key]);
+      });    
+
+      leftDropdowns += closeDropdownHtml;
+      rightDropdowns += closeDropdownHtml;      
+  }
+
+  document.getElementById("left-chromosomes").innerHTML = leftDropdowns;
+  document.getElementById("right-chromosomes").innerHTML = rightDropdowns;
+}
+
+function sprintf(format) {
+  var args = Array.prototype.slice.call(arguments, 1);
+  return format.replace(/{(\d+)}/g, function(match, number) { 
+    return typeof args[number] != 'undefined'
+      ? args[number] 
+      : match
+    ;
+  });
 }
