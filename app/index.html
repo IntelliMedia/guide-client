@@ -1,87 +1,92 @@
 <!doctype html>
 <html class="no-js" lang="">
-  <head>
-    <meta charset="utf-8">
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Guide Client</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://raw.githack.com/inflop/jquery.inflop.bootstrap.alert/master/src/jquery.inflop.bootstrap.alert.min.js"></script>
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Guide Client</title>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>        
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script src="https://raw.githack.com/inflop/jquery.inflop.bootstrap.alert/master/src/jquery.inflop.bootstrap.alert.min.js"></script>
 
-    <!-- Place favicon.ico in the root directory -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
 
-    <!-- build:css styles/vendor.css -->
-    <!-- bower:css -->
-    <!-- endbower -->
-    <!-- endbuild -->
+	<!-- Place favicon.ico in the root directory -->
 
-    <!-- build:css styles/main.css -->
-    <link rel="stylesheet" href="styles/main.css">
-    <!-- endbuild -->
-    
-    <!-- build:js scripts/vendor/modernizr.js -->
-    <!-- endbuild -->
-  </head>
-  <body>
-    <!--[if lt IE 10]>
+	<!-- build:css styles/vendor.css -->
+	<!-- bower:css -->
+	<!-- endbower -->
+	<!-- endbuild -->
+
+	<!-- build:css styles/main.css -->
+	<link rel="stylesheet" href="styles/main.css">
+	<!-- endbuild -->
+
+	<!-- build:js scripts/vendor/modernizr.js -->
+	<!-- endbuild -->
+</head>
+
+<body>
+	<!--[if lt IE 10]>
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-  
-<div id="info"></div>
-<div id="warning"></div>
-<div id="error"></div>
-<div id="success"></div>
 
-<div class="container">
-	<div class="jumbotron">
-		<h2 id="title">GUIDE Client</h2>
-		<div class="form-group">
-			<input placeholder="Username" class="form-control" id="usernameInput">
-		</div>
-		<button class="btn btn-lg btn-primary" id="startSessionButton">Start Session</button>
-		<button class="btn btn-lg btn-primary" id="endSessionButton">End Session</button>
-		<div id='sessionRegion' style="display:none;" <p>
-			<span id='sessionLabel' class="label label-success">Session Active: </span>
-		</div>
+	<div id="info"></div>
+	<div id="warning"></div>
+	<div id="error"></div>
+	<div id="success"></div>
 
-		<div class="container">    
-			<div class="row">
-				<div class="col-sm-3">
-          <h3>Target Drake</h3>
-          <img src="http://demo.geniverse.concord.org/resources/drakes/images/ch_f_noWing_fore_a5_flair_horn_noRostral_healthy.png" id="targetDrakeImage"/>
-				</div>
-				<div class="col-sm-3">   
-          <h3>Your Drake</h3>
-          <img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png" id="yourDrakeImage"/>               
-        </div>
+	<div class="container">
+		<div class="jumbotron">
+			<h2 id="title">GUIDE Client</h2>
+			<div class="form-group">
+				<input placeholder="Username" class="form-control" id="usernameInput">
 			</div>
-   </div>
+			<button class="btn btn-lg btn-primary" id="startSessionButton">Start Session</button>
+			<button class="btn btn-lg btn-primary" id="endSessionButton">End Session</button>
+			<div id='sessionRegion' style="display:none;" <p>
+				<span id='sessionLabel' class="label label-success">Session Active: </span>
+			</div>
+		</div>
 
-		<div class="container">    
+		<div class="container">
+			<div class="row">
+				<div class="col-sm-4">
+					<h3 class="text-center" id="targetOrganismHeader">Target Drake</h3>
+					<img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
+						id="targetDrakeImage" />
+				</div>
+				<div class="col-sm-4">
+					<h3 class="text-center" id="yourOrganismHeader">Your Drake</h3>
+					<img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
+						id="yourDrakeImage" />
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
 			<h3>Chromosome Control</h3>
 			<div class="row">
-				<div class="col-sm-3" id="left-chromosomes">         
+				<div class="col-sm-3" id="left-chromosomes">
 				</div>
 				<div class="col-sm-3" id="right-chromosomes">
-				</div>        
-			</div>                  
-		</div>    
+				</div>
+			</div>
+		</div>
 		<button class="btn btn-lg btn-primary top10" id="submitDrakeButton">Submit Drake</button>
 		<p>
 			<h3>Tutor says:</h3>
 			<div id="tutorResponse"></div>
 		</p>
 	</div>
-</div>
-    
-    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-    <script>
+	</div>
+
+	<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+	<script>
       (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
       function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
       e=o.createElement(i);r=o.getElementsByTagName(i)[0];
@@ -90,18 +95,19 @@
       ga('create','UA-XXXXX-X');ga('send','pageview');
     </script>
 
-    <!-- build:js scripts/vendor.js -->
-    <!-- bower:js -->
-    <!-- endbower -->
-    <!-- endbuild -->
-    
-    <!-- build:js scripts/plugins.js -->
-    <!-- endbuild -->
-    
-    <!-- build:js scripts/main.js -->
+	<!-- build:js scripts/vendor.js -->
+	<!-- bower:js -->
+	<!-- endbower -->
+	<!-- endbuild -->
+
+	<!-- build:js scripts/plugins.js -->
+	<!-- endbuild -->
+
+	<!-- build:js scripts/main.js -->
 	<script src="scripts/biologica.js"></script>
 	<script src="scripts/biologicaExtensions.js"></script>
-    <script src="scripts/main.js"></script>
-    <!-- endbuild -->
-  </body>
+	<script src="scripts/main.js"></script>
+	<!-- endbuild -->
+</body>
+
 </html>

@@ -11,10 +11,11 @@ var sequenceNumber = null;
 var currentUser = null;
 var currentSessionId = null;
 
+var targetSpecies = BioLogica.Species.Drake;
 var targetDrake = null;
 var targetDrakeSex = null;
+var yourDrakeAlleles = null;
 var yourDrakeSex = null;
-var yourDrake = null;
 
 // Replace experiment: https://jsfiddle.net/o82phdd3/
 var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
@@ -30,14 +31,7 @@ document.getElementById('endSessionButton').addEventListener("click", endSession
 // Connection Functions
 
 var genes = ["metallic","wings","forelimbs","hindlimbs","nose"];
-yourDrake = new BioLogica.Organism(BioLogica.Species.Drake, drakeAlleles, yourDrakeSex);
-yourDrake.genetics.topUpChromosomes();  
-createAlleleDropdowns(genes, yourDrake);
-updateAlleleDropdowns(yourDrake);
-
-  var filename = imageUrlBase + yourDrake.getImageName();
-  console.info('image:' + filename);
-  document.getElementById('yourDrakeImage').src = filename;
+startChallenge(genes);
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -86,21 +80,6 @@ function startSession() {
   // Send event to server
   socket.emit('event', JSON.stringify(event));
   updateSessionStatus(currentSessionId);
-
-  //targetDrake = new BioLogica.Organism(BioLogica.Species.Drake, "");
-
-  targetDrakeSex = Math.floor(2 * Math.random());
-  targetDrake = new BioLogica.Organism(BioLogica.Species.Drake,
-                                        drakeAlleles, targetDrakeSex);
-
-  yourDrakeSex = targetDrakeSex; //Math.floor(2 * Math.random());
-  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
-                                      "", yourDrakeSex);
-  yourDrake.genetics.topUpChromosomes();  
-
-  var filename = imageUrlBase + targetDrake.getImageName();
-  console.info('target image:' + filename);
-  document.getElementById('targetDrakeImage').src = filename;  
 }
 
 function endSession() {
@@ -123,12 +102,8 @@ function endSession() {
 
 function submitDrake() {
 
-  //var mother = new BioLogica.Organism(BioLogica.Species.Drake, "a:H,b:H", BioLogica.FEMALE);
-  //var father = new BioLogica.Organism(BioLogica.Species.Drake, "a:H,b:H", BioLogica.MALE);
-  //var child = BioLogica.breed(mother, father);
-
-  //yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", prevAllele, $('#vl').val($(this).attr('data-value')));
-
+  updateAllelesFromDropdowns();
+  var yourDrake = new BioLogica.Organism(targetSpecies, yourDrakeAlleles, yourDrakeSex);
   console.info('alles:' + yourDrake.getAlleleString());
   var filename = imageUrlBase + yourDrake.getImageName();
   console.info('image:' + filename);
@@ -179,6 +154,24 @@ function submitDrake() {
 
 //-----------------------------------------------------------------------
 // Helper Functions
+
+function startChallenge(traits) {
+  targetDrakeSex = Math.floor(2 * Math.random());
+  targetDrake = new BioLogica.Organism(targetSpecies, drakeAlleles, yourDrakeSex);
+
+  yourDrakeSex = targetDrakeSex;
+  yourDrakeAlleles = targetDrake.getAlleleString();
+  
+  createAlleleDropdowns(genes, targetDrake);
+  updateAlleleDropdowns(targetDrake);
+
+  var filename = imageUrlBase + targetDrake.getImageName();
+  console.info('image:' + filename);
+  document.getElementById('targetDrakeImage').src = filename;  
+
+  targetDrakeSex = Math.floor(2 * Math.random());
+  targetDrake = new BioLogica.Organism(targetSpecies, drakeAlleles, targetDrakeSex);
+}
 
 function getUsername() {
   var username = document.getElementById("usernameInput").value;
@@ -252,10 +245,10 @@ function createAlleleDropdowns(genes, organism) {
 
   var openDropdownHtml = 
     `<div class="btn-group">
-      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" data-value="">select <span class="caret"></span></button>
+      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-allele="" gene="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
-  var itemHtml = `<li><a data-value="{1}" href="#">{0}</a></li>`;
+  var itemHtml = `<li><a selected-allele="{1}" >{0}</a></li>`;
 
   var closeDropdownHtml = 
     `   </ul>
@@ -268,16 +261,14 @@ function createAlleleDropdowns(genes, organism) {
   var traitsLength = genes.length;
   for (var i = 0; i < traitsLength; i++) {
 
-//      var info = organism.getCurrentAlleleInfo(genes[i]);
-//      console.info("info: " + JSON.stringify(info));
-
-      //console.info(organism.getAlleleStringForTrait(genes[i]));
       var geneInfo = organism.species.geneList[genes[i]];
-      //console.info("alleleLabels: " + JSON.stringify(alleleLabels));
- //     console.info("left: " +  organism.species.alleleLabelMap[info.leftAllele]);
+      if (geneInfo == null || geneInfo.length == 0) {
+        console.warn("Unable to find alleles for " + genes[i]);
+        continue;
+      }
 
-      leftDropdowns += sprintf(openDropdownHtml, "left", genes[i]);
-      rightDropdowns += sprintf(openDropdownHtml, "right", genes[i]);
+      leftDropdowns += sprintf(openDropdownHtml, genes[i]);
+      rightDropdowns += sprintf(openDropdownHtml, genes[i]);
 
       var allelesLength = geneInfo.alleles.length;
       for (var j = 0; j < allelesLength; ++j) {      
@@ -297,30 +288,28 @@ function createAlleleDropdowns(genes, organism) {
 
 $(".dropdown-menu li a").click(function(){
   selectDropdownItem($(this).parents('.btn-group').find('.dropdown-toggle'), $(this));
-
-  /*
-
-  var allele = yourDrake.genetics.getAlleleStringForTrait("wings");
-  console.info("before trait: " + allele);
-  yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", "w", "w");
-  yourDrake.genetics.genotype.replaceAlleleChromName(1, "b", "W", "w");
-
-  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
-                                      yourDrake.getAlleleString(), yourDrakeSex);
-
-  allele = yourDrake.genetics.getAlleleStringForTrait("wings");
-  console.info("after trait: " + allele);
-  */
 });
 
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
-  var selectedValue = selectedItem.attr('data-value');
+  var selectedValue = selectedItem.attr('selected-allele');
 
   dropdownToggle.html(selectedText+' <span class="caret"></span>');
-  dropdownToggle.attr('data-value', selectedValue);
+  dropdownToggle.attr('selected-allele', selectedValue);
 
   console.info('selected value:' + selectedValue);  
+}
+
+function updateAllelesFromDropdowns() {
+  $('button.allele-selection').each(function(i, dropdown) {
+    var selectedAllele = $(dropdown).attr('selected-allele');
+    var side = selectedAllele.match(/[a-b]/);
+    var gene = $(dropdown).attr('gene');    
+
+    var allOptions = '(' + targetSpecies.geneList[gene].alleles.join('|') + ')';
+    var regex = new RegExp(side + ':' + allOptions, '');
+    yourDrakeAlleles = yourDrakeAlleles.replace(regex, selectedAllele);
+  });
 }
 
 function updateAlleleDropdowns(organism) {
@@ -328,14 +317,30 @@ function updateAlleleDropdowns(organism) {
   console.info('Set dropdowns to:' + alleles);
   $('button.allele-selection').each(function(i, dropdown) {
     console.log('dropdown ' + i + ': ' + $(dropdown).text());
-    $(this).parent(dropdown).find('a').each(function(j, item) {
-      console.log(j + ': ' + $(item).attr('data-value'));
-      if (alleles.includes($(item).attr('data-value'))) {
-        selectDropdownItem($(dropdown), $(item));
-        return false;
-      }
-    });
+    var item  = getDropdownItem($(this), dropdown, alleles);
+    if (item == null) {
+      item = getRandomDropdownItem($(this), dropdown);
+    } 
+    selectDropdownItem($(dropdown), $(item));
   });
+}
+
+function getDropdownItem(context, dropdown, alleles) {
+    var selectedItem = null;
+    
+    context.parent(dropdown).find('a').each(function(j, item) {
+      console.log(j + ': ' + $(item).attr('selected-allele'));
+      if (alleles.includes($(item).attr('selected-allele'))) {
+        selectedItem = item;
+        return false;
+    }});    
+
+    return selectedItem;
+}
+
+function getRandomDropdownItem(context, dropdown) {
+  var items = context.parent(dropdown).find('a');
+  return items[ExtMath.randomInt(items.length)];
 }
 
 function sprintf(format) {
