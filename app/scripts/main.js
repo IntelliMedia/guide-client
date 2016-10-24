@@ -235,11 +235,16 @@ function getUsername() {
 
 function updateSessionStatus(id) {
   if (id) {
-    $("#sessionRegion").show();
-    $("#sessionLabel").text('Active Session: ' + id);
-  } else {
-    $("#sessionRegion").hide();
+    $("#sessionLabel").text(id);
   }
+
+  $(".session-region").each(function(i, region) {
+    if (id) {
+      $(region).show();
+    } else {
+      $(region).hide();
+    }    
+  });
 }
 
 function replaceMessageArgs(msg) {

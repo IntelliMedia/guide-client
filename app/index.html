@@ -31,18 +31,21 @@
 </head>
 
 <body>
+<div class="container">     
+    <div class="span8"> 
+
 	<!--[if lt IE 10]>
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
 	<!--  Modals -->
-    <!-- Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header modal-header-success">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h1><i class="glyphicon glyphicon-thumbs-up"></i> <span class="modal-title">Success Modal<span></h1>
+	<!-- Modal -->
+	<div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header modal-header-success">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<h1><i class="glyphicon glyphicon-thumbs-up"></i> <span class="modal-title">Success Modal<span></h1>
                 </div>
                 <div class="modal-body">
                 </div>
@@ -92,47 +95,45 @@
 	<div id="success"></div>
 
 	<!-- UI -->
-	<div class="container">
-		<!-- Session Controls -->
-		<div class="page-header">
-			<h2 id="title">GUIDE Client</h2>
-			<div class="form-group">
-				<input placeholder="Username" class="form-control" id="usernameInput">
-			</div>
-			<button class="btn btn-lg btn-success" id="startSessionButton">Start Session</button>
-			<button class="btn btn-lg btn-danger" id="endSessionButton">End Session</button>
-			<div id='sessionRegion' style="display:none;" <p>
-				<span id='sessionLabel' class="label label-success">Session Active: </span>
-			</div>
+	<!-- Session Controls -->
+	<div class="page-header">
+		<h2 id="title">GUIDE Client</h2>
+		<div class="form-group">
+			<input placeholder="Username" class="form-control" id="usernameInput">
 		</div>
+		<button class="btn btn-lg btn-success" id="startSessionButton">Start Session</button>
+		<button class="btn btn-lg btn-danger" id="endSessionButton">End Session</button>
+		<div id='sessionLabel'  class='session-region' style="display:none;"></div>
+	</div>
 
+	<div class="container session-region"  style="display:none;"
 		<!-- Genetics Controls -->
-		<div class="container">
-			<div class="row">
-				<div class="col-sm-4">
-					<h3 class="text-center" id="targetOrganismHeader">Target Organism</h3>
-					<img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
-						id="targetOrganismImage" />
-				</div>
-				<div class="col-sm-4">
-					<h3 class="text-center" id="yourOrganismHeader">Your Organism</h3>
-					<img src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
-						id="yourOrganismImage" />
-				</div>
+		<div class="row">
+			<div class="col-sm-4">
+				<h3 class="text-center" id="targetOrganismHeader">Target Organism</h3>
+				<img class="img-responsive center-block" src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
+					id="targetOrganismImage" />
+			</div>
+			<div class="col-sm-4">
+				<h3 class="text-center" id="yourOrganismHeader">Your Organism</h3>
+				<img class="img-responsive center-block" src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
+					id="yourOrganismImage" />
 			</div>
 		</div>
 
-		<div class="container">
-			<h3>Chromosome Control</h3>
-			<div class="row">
-				<div class="col-sm-3" id="left-chromosomes">
-				</div>
-				<div class="col-sm-3" id="right-chromosomes">
-				</div>
+		<h3>Chromosome Control</h3>
+		<div class="row">
+			<div class="col-sm-3" id="left-chromosomes">
+			</div>
+			<div class="col-sm-3" id="right-chromosomes">
 			</div>
 		</div>
+
 		<button class="btn btn-lg btn-primary top10" id="submitOrganismButton">Submit Organism</button>
-		<button class="btn btn-lg btn-info top10" id="randomOrganismButton">Random Organism</button>
+		<button class="btn btn-lg top10" id="randomOrganismButton">Random Organism</button>
+	</div>
+	</div>
+
 	</div>
 	</div>
 
