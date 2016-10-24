@@ -17,6 +17,8 @@ var targetOrganismSex = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
 
+var tutorFeedbackQueue = [];
+
 // Replace experiment: https://jsfiddle.net/o82phdd3/
 var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
 
@@ -24,14 +26,33 @@ var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:
 // UI Functions
 
 document.getElementById('startSessionButton').addEventListener("click", startSession);
-document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
 document.getElementById('endSessionButton').addEventListener("click", endSession);
+document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
+document.getElementById('randomOrganismButton').addEventListener("click", randomOrganism);
+
+function isModalOpen() {
+  var isShown = false; 
+  $(".modal").each(function(i, popup) { 
+    if (($(popup).data('bs.modal') || {}).isShown) {
+      console.log('Popup ' + $(popup).attr('id') + ' is showing');
+      isShown = true;
+      return;
+    }
+  });
+
+  return isShown;
+}
+
+$('.modal').on('hidden.bs.modal', function () {  
+    displayTutorFeedback();
+})
 
 //-----------------------------------------------------------------------
 // Connection Functions
 
-var genes = ["metallic","wings","forelimbs","hindlimbs","nose"];
-startChallenge(genes);
+var genes = ["metallic","wings","forelimbs","hindlimbs"];
+initializeUI(genes, targetSpecies);
+randomOrganism();
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -55,8 +76,10 @@ socket.on('reconnect', () => {
 // Handle message from GUIDE server
 socket.on('tutorAction', (data) => {
   var tutorAction = JSON.parse(data).tutorAction;
-  console.info('Tutor says: ' + tutorAction.message.text);
-  displayTutorText(replaceMessageArgs(tutorAction.message));
+  var message = replaceMessageArgs(tutorAction.message);
+  console.log('Received tutor action: ' + message);
+  tutorFeedbackQueue.push(message);
+  displayTutorFeedback();
 });
 
 //-----------------------------------------------------------------------
@@ -96,7 +119,7 @@ function endSession() {
   };
   // Send event to server
   socket.emit('event', JSON.stringify(event));
-  displayTutorText('');
+  tutorFeedbackQueue = [];
   updateSessionStatus(null);
 }
 
@@ -104,10 +127,20 @@ function submitOrganism() {
 
   updateAllelesFromDropdowns();
   var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  console.info('alles:' + yourOrganism.getAlleleString());
-  var filename = imageUrlBase + yourOrganism.getImageName();
-  console.info('image:' + filename);
+  var filename = imageUrlBase + yourOrganism.getImageName();  
   document.getElementById('yourOrganismImage').src = filename;
+
+  var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
+
+  if (correct) {
+    var modal = $('#successModal').modal('show');
+    modal.find('.modal-title').text('Good work!');
+    modal.find('.modal-body').text('The drake you have created matches the target drake.');
+  } else {
+    var modal = $('#dangerModal').modal('show');
+    modal.find('.modal-title').text("That's not the drake!");
+    modal.find('.modal-body').text("The drake you have created doesn't match the target drake. Please try again.");
+  }
 
   var event = {
     "event": {
@@ -143,7 +176,7 @@ function submitOrganism() {
           "health": "Healthy",
           "liveliness": "Alive"
         },
-        "correct": false,
+        "correct": correct,
         "incrementMoves": true
       }
     }
@@ -152,29 +185,42 @@ function submitOrganism() {
   socket.emit('event', JSON.stringify(event));
 }
 
-//-----------------------------------------------------------------------
-// Helper Functions
-
-function startChallenge(traits) {
-  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
+function randomOrganism() {
 
   targetOrganismSex = Math.floor(2 * Math.random());
-  targetOrganism = new BioLogica.Organism(targetSpecies, drakeAlleles, yourOrganismSex);
+  targetOrganism = new BioLogica.Organism(targetSpecies, "", yourOrganismSex);
+  targetOrganism.species.makeAlive(targetOrganism);
 
   yourOrganismSex = targetOrganismSex;
   yourOrganismAlleles = targetOrganism.getAlleleString();
   
-  createAlleleDropdowns(genes, targetOrganism);
   updateAlleleDropdowns(targetOrganism);
 
   var filename = imageUrlBase + targetOrganism.getImageName();
   console.info('image:' + filename);
-  document.getElementById('targetOrganismImage').src = filename;  
+  document.getElementById('targetOrganismImage').src = filename; 
+}
 
-  targetOrganismSex = Math.floor(2 * Math.random());
-  targetOrganism = new BioLogica.Organism(targetSpecies, drakeAlleles, targetOrganismSex);
+function getUsername() {
+  var username = document.getElementById("usernameInput").value;
+  if (!username) {
+    username = randomUsername();
+    document.getElementById("usernameInput").value = username;
+  }
+
+  return username;
+}
+
+//-----------------------------------------------------------------------
+// Helper Functions
+
+function initializeUI(traits, species) {
+  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
+  $('#randomOrganismButton').text('Random ' + targetSpecies.name);
+  
+  createAlleleDropdowns(genes, species);
 }
 
 function getUsername() {
@@ -200,9 +246,17 @@ function replaceMessageArgs(msg) {
   return Mustache.render(msg.text, msg.args);
 }
 
-function displayTutorText(text) {
-  var tutorResponse = document.getElementById('tutorResponse');
-  tutorResponse.innerHTML = text;
+function displayTutorFeedback() {
+    if (tutorFeedbackQueue.length == 0 || isModalOpen()) {      
+      return;
+    }
+
+    var message = tutorFeedbackQueue.shift();
+    if (message != null) {
+      var modal = $('#infoModal').modal('show');
+      modal.find('.modal-title').text("Tutor");
+      modal.find('.modal-body').text(message);
+    }
 }
 
 function randomUsername() {
@@ -245,7 +299,7 @@ function showSuccess(msg) {
   $('#success').showBootstrapAlertSuccess(msg, Bootstrap.ContentType.Text, true);
 }
 
-function createAlleleDropdowns(genes, organism) {
+function createAlleleDropdowns(genes, species) {
 
   var openDropdownHtml = 
     `<div class="btn-group">
@@ -265,7 +319,7 @@ function createAlleleDropdowns(genes, organism) {
   var traitsLength = genes.length;
   for (var i = 0; i < traitsLength; i++) {
 
-      var geneInfo = organism.species.geneList[genes[i]];
+      var geneInfo = species.geneList[genes[i]];
       if (geneInfo == null || geneInfo.length == 0) {
         console.warn("Unable to find alleles for " + genes[i]);
         continue;
@@ -277,7 +331,7 @@ function createAlleleDropdowns(genes, organism) {
       var allelesLength = geneInfo.alleles.length;
       for (var j = 0; j < allelesLength; ++j) {      
           var allele = geneInfo.alleles[j];
-          var alleleName = organism.species.alleleLabelMap[allele];
+          var alleleName = species.alleleLabelMap[allele];
           leftDropdowns += sprintf(itemHtml, alleleName, 'a:' + allele);
           rightDropdowns += sprintf(itemHtml, alleleName, 'b:' + allele);
       }    

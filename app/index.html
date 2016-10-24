@@ -35,24 +35,78 @@
       <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
 
+	<!--  Modals -->
+    <!-- Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-success">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h1><i class="glyphicon glyphicon-thumbs-up"></i> <span class="modal-title">Success Modal<span></h1>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="dangerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-danger">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h1><i class="glyphicon glyphicon glyphicon-remove-circle"></i> <span class="modal-title">Danger Modal<span></h1>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->	
+
+    <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header modal-header-info">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h1><i class="glyphicon glyphicon glyphicon-info-sign"></i> <span class="modal-title">Info Modal<span></h1>
+                </div>
+                <div class="modal-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->	
+
+	<!-- Alerts -->
 	<div id="info"></div>
 	<div id="warning"></div>
 	<div id="error"></div>
 	<div id="success"></div>
 
+	<!-- UI -->
 	<div class="container">
+		<!-- Session Controls -->
 		<div class="page-header">
 			<h2 id="title">GUIDE Client</h2>
 			<div class="form-group">
 				<input placeholder="Username" class="form-control" id="usernameInput">
 			</div>
-			<button class="btn btn-lg btn-primary" id="startSessionButton">Start Session</button>
-			<button class="btn btn-lg btn-primary" id="endSessionButton">End Session</button>
+			<button class="btn btn-lg btn-success" id="startSessionButton">Start Session</button>
+			<button class="btn btn-lg btn-danger" id="endSessionButton">End Session</button>
 			<div id='sessionRegion' style="display:none;" <p>
 				<span id='sessionLabel' class="label label-success">Session Active: </span>
 			</div>
 		</div>
 
+		<!-- Genetics Controls -->
 		<div class="container">
 			<div class="row">
 				<div class="col-sm-4">
@@ -78,6 +132,7 @@
 			</div>
 		</div>
 		<button class="btn btn-lg btn-primary top10" id="submitOrganismButton">Submit Organism</button>
+		<button class="btn btn-lg btn-info top10" id="randomOrganismButton">Random Organism</button>
 	</div>
 	</div>
 
