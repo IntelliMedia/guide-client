@@ -16,29 +16,11 @@ var targetDrakeSex = null;
 var yourDrakeSex = null;
 var yourDrake = null;
 
-var drakeAlleles = "a:T,b:t,a:m,b:M,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
+// Replace experiment: https://jsfiddle.net/o82phdd3/
+var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
 
 //-----------------------------------------------------------------------
 // UI Functions
-$(".dropdown-menu li a").click(function(){
-  var selText = $(this).text();
-
-  $(this).parents('.btn-group').find('.dropdown-toggle').html(selText+' <span class="caret"></span>');
-
-  var selectedValue = $(this).attr('data-value');
-  console.info('selected value:' + selectedValue);
-
-  var allele = yourDrake.genetics.getAlleleStringForTrait("wings");
-  console.info("before trait: " + allele);
-  yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", "w", "w");
-  yourDrake.genetics.genotype.replaceAlleleChromName(1, "b", "W", "w");
-
-  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
-                                      yourDrake.getAlleleString(), yourDrakeSex);
-
-  allele = yourDrake.genetics.getAlleleStringForTrait("wings");
-  console.info("after trait: " + allele);
-});
 
 document.getElementById('startSessionButton').addEventListener("click", startSession);
 document.getElementById('submitDrakeButton').addEventListener("click", submitDrake);
@@ -47,8 +29,15 @@ document.getElementById('endSessionButton').addEventListener("click", endSession
 //-----------------------------------------------------------------------
 // Connection Functions
 
-var traitsArray = ["metallic","wings","forelimbs","hindlimbs","nose"];
-createChromosomeDropdowns(traitsArray, new BioLogica.Organism(BioLogica.Species.Drake, ""));
+var genes = ["metallic","wings","forelimbs","hindlimbs","nose"];
+yourDrake = new BioLogica.Organism(BioLogica.Species.Drake, drakeAlleles, yourDrakeSex);
+yourDrake.genetics.topUpChromosomes();  
+createAlleleDropdowns(genes, yourDrake);
+updateAlleleDropdowns(yourDrake);
+
+  var filename = imageUrlBase + yourDrake.getImageName();
+  console.info('image:' + filename);
+  document.getElementById('yourDrakeImage').src = filename;
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -106,7 +95,8 @@ function startSession() {
 
   yourDrakeSex = targetDrakeSex; //Math.floor(2 * Math.random());
   yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
-                                      targetDrake.getAlleleString(), yourDrakeSex);  
+                                      "", yourDrakeSex);
+  yourDrake.genetics.topUpChromosomes();  
 
   var filename = imageUrlBase + targetDrake.getImageName();
   console.info('target image:' + filename);
@@ -258,11 +248,11 @@ function showSuccess(msg) {
   $('#success').showBootstrapAlertSuccess(msg, Bootstrap.ContentType.Text, true);
 }
 
-function createChromosomeDropdowns(traitsArray, organism) {
+function createAlleleDropdowns(genes, organism) {
 
   var openDropdownHtml = 
     `<div class="btn-group">
-      <button class="btn dropdown-toggle chromsomeA-scales-select" type="button" data-toggle="dropdown">{0}<span class="caret"></span></button>
+      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" data-value="">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
   var itemHtml = `<li><a data-value="{1}" href="#">{0}</a></li>`;
@@ -275,18 +265,27 @@ function createChromosomeDropdowns(traitsArray, organism) {
   var leftDropdowns = "";
   var rightDropdowns = "";
  
-  var traitsLength = traitsArray.length;
+  var traitsLength = genes.length;
   for (var i = 0; i < traitsLength; i++) {
-      
-      leftDropdowns += sprintf(openDropdownHtml, traitsArray[i]);
-      rightDropdowns += sprintf(openDropdownHtml, traitsArray[i]);
 
-      var alleleLabels = organism.getAllelesAndLabels(traitsArray[i]);
-      console.info("alleleLabels: " + JSON.stringify(alleleLabels));
-      Object.keys(alleleLabels).forEach(function(key) {
-          leftDropdowns += sprintf(itemHtml, key, alleleLabels[key]);
-          rightDropdowns += sprintf(itemHtml, key, alleleLabels[key]);
-      });    
+//      var info = organism.getCurrentAlleleInfo(genes[i]);
+//      console.info("info: " + JSON.stringify(info));
+
+      //console.info(organism.getAlleleStringForTrait(genes[i]));
+      var geneInfo = organism.species.geneList[genes[i]];
+      //console.info("alleleLabels: " + JSON.stringify(alleleLabels));
+ //     console.info("left: " +  organism.species.alleleLabelMap[info.leftAllele]);
+
+      leftDropdowns += sprintf(openDropdownHtml, "left", genes[i]);
+      rightDropdowns += sprintf(openDropdownHtml, "right", genes[i]);
+
+      var allelesLength = geneInfo.alleles.length;
+      for (var j = 0; j < allelesLength; ++j) {      
+          var allele = geneInfo.alleles[j];
+          var alleleName = organism.species.alleleLabelMap[allele];
+          leftDropdowns += sprintf(itemHtml, alleleName, 'a:' + allele);
+          rightDropdowns += sprintf(itemHtml, alleleName, 'b:' + allele);
+      }    
 
       leftDropdowns += closeDropdownHtml;
       rightDropdowns += closeDropdownHtml;      
@@ -294,6 +293,49 @@ function createChromosomeDropdowns(traitsArray, organism) {
 
   document.getElementById("left-chromosomes").innerHTML = leftDropdowns;
   document.getElementById("right-chromosomes").innerHTML = rightDropdowns;
+}
+
+$(".dropdown-menu li a").click(function(){
+  selectDropdownItem($(this).parents('.btn-group').find('.dropdown-toggle'), $(this));
+
+  /*
+
+  var allele = yourDrake.genetics.getAlleleStringForTrait("wings");
+  console.info("before trait: " + allele);
+  yourDrake.genetics.genotype.replaceAlleleChromName(1, "a", "w", "w");
+  yourDrake.genetics.genotype.replaceAlleleChromName(1, "b", "W", "w");
+
+  yourDrake = new BioLogica.Organism(BioLogica.Species.Drake,
+                                      yourDrake.getAlleleString(), yourDrakeSex);
+
+  allele = yourDrake.genetics.getAlleleStringForTrait("wings");
+  console.info("after trait: " + allele);
+  */
+});
+
+function selectDropdownItem(dropdownToggle, selectedItem) {
+  var selectedText = selectedItem.text();
+  var selectedValue = selectedItem.attr('data-value');
+
+  dropdownToggle.html(selectedText+' <span class="caret"></span>');
+  dropdownToggle.attr('data-value', selectedValue);
+
+  console.info('selected value:' + selectedValue);  
+}
+
+function updateAlleleDropdowns(organism) {
+  var alleles = organism.getAlleleString();
+  console.info('Set dropdowns to:' + alleles);
+  $('button.allele-selection').each(function(i, dropdown) {
+    console.log('dropdown ' + i + ': ' + $(dropdown).text());
+    $(this).parent(dropdown).find('a').each(function(j, item) {
+      console.log(j + ': ' + $(item).attr('data-value'));
+      if (alleles.includes($(item).attr('data-value'))) {
+        selectDropdownItem($(dropdown), $(item));
+        return false;
+      }
+    });
+  });
 }
 
 function sprintf(format) {
