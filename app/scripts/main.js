@@ -12,10 +12,10 @@ var currentUser = null;
 var currentSessionId = null;
 
 var targetSpecies = BioLogica.Species.Drake;
-var targetDrake = null;
-var targetDrakeSex = null;
-var yourDrakeAlleles = null;
-var yourDrakeSex = null;
+var targetOrganism = null;
+var targetOrganismSex = null;
+var yourOrganismAlleles = null;
+var yourOrganismSex = null;
 
 // Replace experiment: https://jsfiddle.net/o82phdd3/
 var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
@@ -24,7 +24,7 @@ var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:
 // UI Functions
 
 document.getElementById('startSessionButton').addEventListener("click", startSession);
-document.getElementById('submitDrakeButton').addEventListener("click", submitDrake);
+document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
 document.getElementById('endSessionButton').addEventListener("click", endSession);
 
 //-----------------------------------------------------------------------
@@ -100,14 +100,14 @@ function endSession() {
   updateSessionStatus(null);
 }
 
-function submitDrake() {
+function submitOrganism() {
 
   updateAllelesFromDropdowns();
-  var yourDrake = new BioLogica.Organism(targetSpecies, yourDrakeAlleles, yourDrakeSex);
-  console.info('alles:' + yourDrake.getAlleleString());
-  var filename = imageUrlBase + yourDrake.getImageName();
+  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  console.info('alles:' + yourOrganism.getAlleleString());
+  var filename = imageUrlBase + yourOrganism.getImageName();
   console.info('image:' + filename);
-  document.getElementById('yourDrakeImage').src = filename;
+  document.getElementById('yourOrganismImage').src = filename;
 
   var event = {
     "event": {
@@ -156,21 +156,25 @@ function submitDrake() {
 // Helper Functions
 
 function startChallenge(traits) {
-  targetDrakeSex = Math.floor(2 * Math.random());
-  targetDrake = new BioLogica.Organism(targetSpecies, drakeAlleles, yourDrakeSex);
+  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
 
-  yourDrakeSex = targetDrakeSex;
-  yourDrakeAlleles = targetDrake.getAlleleString();
+  targetOrganismSex = Math.floor(2 * Math.random());
+  targetOrganism = new BioLogica.Organism(targetSpecies, drakeAlleles, yourOrganismSex);
+
+  yourOrganismSex = targetOrganismSex;
+  yourOrganismAlleles = targetOrganism.getAlleleString();
   
-  createAlleleDropdowns(genes, targetDrake);
-  updateAlleleDropdowns(targetDrake);
+  createAlleleDropdowns(genes, targetOrganism);
+  updateAlleleDropdowns(targetOrganism);
 
-  var filename = imageUrlBase + targetDrake.getImageName();
+  var filename = imageUrlBase + targetOrganism.getImageName();
   console.info('image:' + filename);
-  document.getElementById('targetDrakeImage').src = filename;  
+  document.getElementById('targetOrganismImage').src = filename;  
 
-  targetDrakeSex = Math.floor(2 * Math.random());
-  targetDrake = new BioLogica.Organism(targetSpecies, drakeAlleles, targetDrakeSex);
+  targetOrganismSex = Math.floor(2 * Math.random());
+  targetOrganism = new BioLogica.Organism(targetSpecies, drakeAlleles, targetOrganismSex);
 }
 
 function getUsername() {
@@ -308,7 +312,7 @@ function updateAllelesFromDropdowns() {
 
     var allOptions = '(' + targetSpecies.geneList[gene].alleles.join('|') + ')';
     var regex = new RegExp(side + ':' + allOptions, '');
-    yourDrakeAlleles = yourDrakeAlleles.replace(regex, selectedAllele);
+    yourOrganismAlleles = yourOrganismAlleles.replace(regex, selectedAllele);
   });
 }
 
