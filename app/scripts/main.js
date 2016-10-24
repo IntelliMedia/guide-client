@@ -52,7 +52,6 @@ $('.modal').on('hidden.bs.modal', function () {
 
 var genes = ["metallic","wings","forelimbs","hindlimbs"];
 initializeUI(genes, targetSpecies);
-randomOrganism();
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -86,6 +85,9 @@ socket.on('tutorAction', (data) => {
 // Button Handlers
 
 function startSession() {
+
+  randomOrganism();
+
   currentUser = getUsername();
   currentSessionId = guid();
   sequenceNumber = 0;
@@ -191,7 +193,7 @@ function randomOrganism() {
   targetOrganism = new BioLogica.Organism(targetSpecies, "", yourOrganismSex);
   targetOrganism.species.makeAlive(targetOrganism);
 
-  yourOrganismSex = targetOrganismSex;
+  yourOrganismSex = targetOrganism.sex;
   yourOrganismAlleles = targetOrganism.getAlleleString();
   
   updateAlleleDropdowns(targetOrganism);
@@ -199,6 +201,8 @@ function randomOrganism() {
   var filename = imageUrlBase + targetOrganism.getImageName();
   console.info('image:' + filename);
   document.getElementById('targetOrganismImage').src = filename; 
+  
+  document.getElementById('yourOrganismImage').src = questionMarkImageUrl; 
 }
 
 function getUsername() {
