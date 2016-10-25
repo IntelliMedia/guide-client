@@ -372,8 +372,6 @@ function randomizeAlleles(genes, alleles) {
   }
   var allelesToRandomize = shuffle(allelesToRandomize);
 
-  console.log('allelesToRandomize: ' + allelesToRandomize);
-
   var randomAllelesTarget = minRandomAlleles + ExtMath.randomInt(maxRandomAlleles - minRandomAlleles);
   var totalRandomizedAlleles = 0;
 
@@ -423,7 +421,6 @@ function getSide(allele) {
 }
 
 function getGene(allele) {
-  console.log("get gene from: " + allele);
   var geneName = null;
   var alleleWithoutSide = allele.replace(/.+:/, "");
 
@@ -433,8 +430,6 @@ function getGene(allele) {
       return false;
     }
   });
-
-  console.log("geneName: " + geneName);
   return geneName;
 }
 
