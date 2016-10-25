@@ -12,10 +12,14 @@ var currentUser = null;
 var currentSessionId = null;
 
 var targetSpecies = BioLogica.Species.Drake;
+var targetGenes = ["metallic","wings","forelimbs","hindlimbs"];
 var targetOrganism = null;
 var targetOrganismSex = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
+
+var minRandomAlleles = 4;
+var maxRandomAlleles = 10;
 
 var tutorFeedbackQueue = [];
 
@@ -50,8 +54,7 @@ $('.modal').on('hidden.bs.modal', function () {
 //-----------------------------------------------------------------------
 // Connection Functions
 
-var genes = ["metallic","wings","forelimbs","hindlimbs"];
-initializeUI(genes, targetSpecies);
+initializeUI(targetGenes, targetSpecies);
 
 var serverUrl = guideServer + '/' + guideProtocol;
 var socket = io(serverUrl);
@@ -193,10 +196,9 @@ function randomOrganism() {
   targetOrganism = new BioLogica.Organism(targetSpecies, "", yourOrganismSex);
   targetOrganism.species.makeAlive(targetOrganism);
 
-  yourOrganismSex = targetOrganism.sex;
-  yourOrganismAlleles = targetOrganism.getAlleleString();
-  
-  updateAlleleDropdowns(targetOrganism);
+  yourOrganismSex = targetOrganism.sex;  
+  yourOrganismAlleles = randomizeAlleles(targetGenes, targetOrganism.getAlleleString());
+  updateAlleleDropdowns(yourOrganismAlleles);
 
   var filename = imageUrlBase + targetOrganism.getImageName();
   console.info('image:' + filename);
@@ -218,7 +220,7 @@ function getUsername() {
 //-----------------------------------------------------------------------
 // Helper Functions
 
-function initializeUI(traits, species) {
+function initializeUI(genes, species) {
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
   $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
   $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
@@ -357,6 +359,91 @@ $(".dropdown-menu li a").click(function(){
   selectDropdownItem($(this).parents('.btn-group').find('.dropdown-toggle'), $(this));
 });
 
+function randomizeAlleles(genes, alleles) {
+
+  console.log('before: ' + alleles);
+
+  var allelesToRandomize = [];
+  var genesLength = genes.length;
+  for (var i = 0; i < genesLength; i++) {
+    var gene = genes[i];
+    allelesToRandomize.push(findAllele(alleles, 'a', gene));
+    allelesToRandomize.push(findAllele(alleles, 'b', gene));
+  }
+  var allelesToRandomize = shuffle(allelesToRandomize);
+
+  console.log('allelesToRandomize: ' + allelesToRandomize);
+
+  var randomAllelesTarget = minRandomAlleles + ExtMath.randomInt(maxRandomAlleles - minRandomAlleles);
+  var totalRandomizedAlleles = 0;
+
+  var allelesToRandomizeLength = allelesToRandomize.length;
+  for (var i = 0; i < allelesToRandomizeLength; i++) {
+    var originalAllele = allelesToRandomize[i];
+    var randomAllele = getRandomAllele(
+      getGene(originalAllele), 
+      getSide(originalAllele), 
+      [originalAllele]);
+    alleles = alleles.replace(originalAllele, randomAllele);
+    ++totalRandomizedAlleles;
+    if (totalRandomizedAlleles >= randomAllelesTarget) {
+      break;
+    }
+  }  
+
+  console.log('after: ' + alleles);
+
+  return alleles;
+}
+
+function getRandomAllele(gene, side, excluding) {
+  var randomAllele = null;
+  var allelesLength = targetSpecies.geneList[gene].alleles.length;
+  var i = ExtMath.randomInt(allelesLength);
+  while(randomAllele == null || excluding.includes(randomAllele)) {
+    randomAllele = side + ':' + targetSpecies.geneList[gene].alleles[i];
+    if (++i >= allelesLength) {
+      i = 0;
+    }
+  }
+  return randomAllele;  
+}
+
+function hasAllele(alleles, allele) {
+  return alleles.includes(allele);
+}
+
+function replaceAllele(gene, alleles, newAllele) {
+    var side = getSide(newAllele);
+    return alleles.replace(findAllele(alleles, side, gene), newAllele);  
+}
+
+function getSide(allele) {
+  return allele.match(/[a-b]/);
+}
+
+function getGene(allele) {
+  console.log("get gene from: " + allele);
+  var geneName = null;
+  var alleleWithoutSide = allele.replace(/.+:/, "");
+
+  Object.keys(targetSpecies.geneList).forEach(function(key, index) {
+    if (targetSpecies.geneList[key].alleles.includes(alleleWithoutSide)) {
+      geneName = key;
+      return false;
+    }
+  });
+
+  console.log("geneName: " + geneName);
+  return geneName;
+}
+
+function findAllele(alleles, side, gene) {
+    var allOptions = '(?:' + targetSpecies.geneList[gene].alleles.join('|') + ')';
+    var regex = new RegExp(side + ':' + allOptions, '');
+    return alleles.match(regex).toString();
+}
+
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
   var selectedValue = selectedItem.attr('selected-allele');
@@ -369,18 +456,14 @@ function selectDropdownItem(dropdownToggle, selectedItem) {
 
 function updateAllelesFromDropdowns() {
   $('button.allele-selection').each(function(i, dropdown) {
-    var selectedAllele = $(dropdown).attr('selected-allele');
-    var side = selectedAllele.match(/[a-b]/);
+    var selectedAllele = $(dropdown).attr('selected-allele');    
     var gene = $(dropdown).attr('gene');    
 
-    var allOptions = '(' + targetSpecies.geneList[gene].alleles.join('|') + ')';
-    var regex = new RegExp(side + ':' + allOptions, '');
-    yourOrganismAlleles = yourOrganismAlleles.replace(regex, selectedAllele);
+    yourOrganismAlleles = replaceAllele(gene, yourOrganismAlleles, selectedAllele);
   });
 }
 
-function updateAlleleDropdowns(organism) {
-  var alleles = organism.getAlleleString();
+function updateAlleleDropdowns(alleles) {
   console.info('Set dropdowns to:' + alleles);
   $('button.allele-selection').each(function(i, dropdown) {
     console.log('dropdown ' + i + ': ' + $(dropdown).text());
@@ -418,4 +501,24 @@ function sprintf(format) {
       : match
     ;
   });
+}
+
+// http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
 }
