@@ -271,7 +271,7 @@ function displayTutorFeedback() {
 }
 
 function randomUsername() {
-  return 'FiddleUser-' + Math.floor((Math.random() * 1000) + 1).toString();
+  return 'TestUser-' + Math.floor((Math.random() * 1000) + 1).toString();
 }
 
 // Create a GUID
