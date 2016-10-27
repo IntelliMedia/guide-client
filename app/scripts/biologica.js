@@ -8,6 +8,10 @@
   used internally and their use by clients is deprecated.
  */
 
+if (typeof exports === 'undefined') {
+   var exports = window;
+}
+
 (function() {
   var arrayRemoveObject, arrayShuffle,
     hasProp = {}.hasOwnProperty,
@@ -77,7 +81,8 @@
     return array;
   };
 
-  window.ExtMath = {};
+  ExtMath = {};
+  exports.ExtMath = ExtMath;
 
   ExtMath.randomInt = function(max) {
     return Math.floor(Math.random() * max);
@@ -87,7 +92,8 @@
     return ExtMath.randomInt(2);
   };
 
-  window.BioLogica = {};
+  BioLogica = {};
+  exports.BioLogica = BioLogica;
 
   BioLogica.FEMALE = 1;
 
