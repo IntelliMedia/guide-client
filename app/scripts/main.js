@@ -1,7 +1,8 @@
 //-----------------------------------------------------------------------
 // Initialize Variables
 
-var guideServer = 'wss://guide.intellimedia.ncsu.edu';
+//var guideServer = 'wss://guide.intellimedia.ncsu.edu';
+var guideServer = 'ws://localhost:3000';
 var guideProtocol = 'guide-protocol-v2';
 var imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
 var questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
@@ -15,6 +16,7 @@ var targetSpecies = BioLogica.Species.Drake;
 var targetGenes = ["metallic","wings","forelimbs","hindlimbs"];
 var targetOrganism = null;
 var targetOrganismSex = null;
+var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
 
@@ -84,6 +86,26 @@ socket.on('tutorAction', (data) => {
   displayTutorFeedback();
 });
 
+socket.on('alert', (data) => {
+  var alert = JSON.parse(data);
+  switch (alert.type) {
+    case 'error':
+      showPopup(
+        'danger',
+        'Server',
+        alert.message
+      );    
+    break;
+
+    default:
+      showPopup(
+        'info',
+        'Server',
+        alert.message
+      );  
+  }
+});
+
 //-----------------------------------------------------------------------
 // Button Handlers
 
@@ -138,13 +160,16 @@ function submitOrganism() {
   var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
 
   if (correct) {
-    var modal = $('#successModal').modal('show');
-    modal.find('.modal-title').text('Good work!');
-    modal.find('.modal-body').text('The drake you have created matches the target drake.');
+    showPopup(
+      'success',
+      'Good work!',
+      'The drake you have created matches the target drake.');
+
   } else {
-    var modal = $('#dangerModal').modal('show');
-    modal.find('.modal-title').text("That's not the drake!");
-    modal.find('.modal-body').text("The drake you have created doesn't match the target drake. Please try again.");
+    showPopup(
+      'danger',
+      "That's not the drake!",
+      "The drake you have created doesn't match the target drake. Please try again.");
   }
 
   var event = {
@@ -155,8 +180,14 @@ function submitOrganism() {
       "sequence": sequenceNumber++,
       "actor": "USER",
       "action": "SUBMITTED",
-      "target": "DRAKE",
+      "target": "ORGANISM",
       "context": {
+        "case" : "1",
+        "challenge" : "1",
+        "species" : targetSpecies.name,
+        "initialAlleles": yourInitialAlleles,
+        "selectedAlleles": yourOrganismAlleles,
+        "editableTraits": targetGenes,
         "correctPhenotype": {
           "scales": "Five armor",
           "tail": "Long tail",
@@ -197,7 +228,8 @@ function randomOrganism() {
   targetOrganism.species.makeAlive(targetOrganism);
 
   yourOrganismSex = targetOrganism.sex;  
-  yourOrganismAlleles = randomizeAlleles(targetGenes, targetOrganism.getAlleleString());
+  yourInitialAlleles = BiologicaX.randomizeAlleles(targetGenes, targetOrganism.getAlleleString());
+  yourOrganismAlleles = yourInitialAlleles; 
   updateAlleleDropdowns(yourOrganismAlleles);
 
   var filename = imageUrlBase + targetOrganism.getImageName();
@@ -254,7 +286,7 @@ function updateSessionStatus(id) {
 }
 
 function replaceMessageArgs(msg) {
-  return Mustache.render(msg.text, msg.args);
+  return msg.text ? Mustache.render(msg.text, msg.args) : "";
 }
 
 function displayTutorFeedback() {
@@ -264,10 +296,20 @@ function displayTutorFeedback() {
 
     var message = tutorFeedbackQueue.shift();
     if (message != null) {
-      var modal = $('#infoModal').modal('show');
-      modal.find('.modal-title').text("Tutor");
-      modal.find('.modal-body').text(message);
+      showPopup(
+        'info',
+        'Tutor',
+        message
+      );
     }
+}
+
+function showPopup(type, title, message) {
+  var popup = $('#' + type + 'Modal').modal('show');
+  popup.find('.modal-title').text(title);
+  popup.find('.modal-body').text(message);
+
+  return popup;
 }
 
 function randomUsername() {
@@ -359,86 +401,6 @@ $(".dropdown-menu li a").click(function(){
   selectDropdownItem($(this).parents('.btn-group').find('.dropdown-toggle'), $(this));
 });
 
-function randomizeAlleles(genes, alleles) {
-
-  console.log('before: ' + alleles);
-
-  var allelesToRandomize = [];
-  var genesLength = genes.length;
-  for (var i = 0; i < genesLength; i++) {
-    var gene = genes[i];
-    allelesToRandomize.push(findAllele(alleles, 'a', gene));
-    allelesToRandomize.push(findAllele(alleles, 'b', gene));
-  }
-  var allelesToRandomize = shuffle(allelesToRandomize);
-
-  var randomAllelesTarget = minRandomAlleles + ExtMath.randomInt(maxRandomAlleles - minRandomAlleles);
-  var totalRandomizedAlleles = 0;
-
-  var allelesToRandomizeLength = allelesToRandomize.length;
-  for (var i = 0; i < allelesToRandomizeLength; i++) {
-    var originalAllele = allelesToRandomize[i];
-    var randomAllele = getRandomAllele(
-      getGene(originalAllele), 
-      getSide(originalAllele), 
-      [originalAllele]);
-    alleles = alleles.replace(originalAllele, randomAllele);
-    ++totalRandomizedAlleles;
-    if (totalRandomizedAlleles >= randomAllelesTarget) {
-      break;
-    }
-  }  
-
-  console.log('after: ' + alleles);
-
-  return alleles;
-}
-
-function getRandomAllele(gene, side, excluding) {
-  var randomAllele = null;
-  var allelesLength = targetSpecies.geneList[gene].alleles.length;
-  var i = ExtMath.randomInt(allelesLength);
-  while(randomAllele == null || excluding.includes(randomAllele)) {
-    randomAllele = side + ':' + targetSpecies.geneList[gene].alleles[i];
-    if (++i >= allelesLength) {
-      i = 0;
-    }
-  }
-  return randomAllele;  
-}
-
-function hasAllele(alleles, allele) {
-  return alleles.includes(allele);
-}
-
-function replaceAllele(gene, alleles, newAllele) {
-    var side = getSide(newAllele);
-    return alleles.replace(findAllele(alleles, side, gene), newAllele);  
-}
-
-function getSide(allele) {
-  return allele.match(/[a-b]/);
-}
-
-function getGene(allele) {
-  var geneName = null;
-  var alleleWithoutSide = allele.replace(/.+:/, "");
-
-  Object.keys(targetSpecies.geneList).forEach(function(key, index) {
-    if (targetSpecies.geneList[key].alleles.includes(alleleWithoutSide)) {
-      geneName = key;
-      return false;
-    }
-  });
-  return geneName;
-}
-
-function findAllele(alleles, side, gene) {
-    var allOptions = '(?:' + targetSpecies.geneList[gene].alleles.join('|') + ')';
-    var regex = new RegExp(side + ':' + allOptions, '');
-    return alleles.match(regex).toString();
-}
-
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
   var selectedValue = selectedItem.attr('selected-allele');
@@ -454,7 +416,7 @@ function updateAllelesFromDropdowns() {
     var selectedAllele = $(dropdown).attr('selected-allele');    
     var gene = $(dropdown).attr('gene');    
 
-    yourOrganismAlleles = replaceAllele(gene, yourOrganismAlleles, selectedAllele);
+    yourOrganismAlleles = BiologicaX.replaceAllele(gene, yourOrganismAlleles, selectedAllele);
   });
 }
 
