@@ -1,8 +1,8 @@
 //-----------------------------------------------------------------------
 // Initialize Variables
 
-//var guideServer = 'wss://guide.intellimedia.ncsu.edu';
-var guideServer = 'ws://localhost:3000';
+var guideServer = 'wss://guide.intellimedia.ncsu.edu';
+//var guideServer = 'ws://localhost:3000';
 var guideProtocol = 'guide-protocol-v2';
 var imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
 var questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
