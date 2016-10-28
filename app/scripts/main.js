@@ -142,19 +142,19 @@ function SendGuideEvent(actor, action, target, context) {
 
 function initializeUI(genes, species) {
 
-  document.getElementById('startSessionButton').addEventListener("click", startSession);
-  document.getElementById('endSessionButton').addEventListener("click", endSession);
-  document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
-  document.getElementById('randomOrganismButton').addEventListener("click", randomOrganism);
+  $('#startSessionButton').on("click", startSession);
+  $('#endSessionButton').on("click", endSession);
+  $('#submitOrganismButton').on("click", submitOrganism);
+  $('#randomOrganismButton').on("click", randomOrganism);
+
+  $('.modal').on('hidden.bs.modal', function () {  
+      displayTutorFeedback();
+  })   
   
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
   $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
   $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
-  $('#randomOrganismButton').text('Random ' + targetSpecies.name);
-
-  $('.modal').on('hidden.bs.modal', function () {  
-      displayTutorFeedback();
-  })  
+  $('#randomOrganismButton').text('Random ' + targetSpecies.name); 
   
   createAlleleDropdowns(genes, species);
 }
@@ -235,7 +235,7 @@ function submitOrganism() {
   updateAllelesFromDropdowns();
   var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
   var filename = imageUrlBase + yourOrganism.getImageName();  
-  document.getElementById('yourOrganismImage').src = filename;
+  $('#yourOrganismImage').attr('src', filename);
 
   var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
 
@@ -306,16 +306,16 @@ function randomOrganism() {
   updateAlleleDropdowns(yourOrganismAlleles);
 
   var filename = imageUrlBase + targetOrganism.getImageName();
-  document.getElementById('targetOrganismImage').src = filename; 
+  $('#targetOrganismImage').attr('src', filename); 
   
-  document.getElementById('yourOrganismImage').src = questionMarkImageUrl; 
+  $('#yourOrganismImage').attr('src', questionMarkImageUrl); 
 }
 
 function getUsername() {
-  var username = document.getElementById("usernameInput").value;
+  var username = $('#usernameInput').val();
   if (!username) {
     username = randomUsername();
-    document.getElementById("usernameInput").value = username;
+    $('#usernameInput').val(username);
   }
 
   return username;
@@ -395,8 +395,8 @@ function createAlleleDropdowns(genes, species) {
       rightDropdowns += closeDropdownHtml;      
   }
 
-  document.getElementById("left-chromosomes").innerHTML = leftDropdowns;
-  document.getElementById("right-chromosomes").innerHTML = rightDropdowns;
+  $('#left-chromosomes').html(leftDropdowns);
+  $('#right-chromosomes').html(rightDropdowns);
 }
 
 $(".dropdown-menu li a").click(function(){
