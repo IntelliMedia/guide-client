@@ -1,8 +1,19 @@
 //-----------------------------------------------------------------------
 // Initialize Variables
 
-var guideServer = 'wss://guide.intellimedia.ncsu.edu';
-//var guideServer = 'ws://localhost:3000';
+var guideServer = null;
+switch(window.location.protocol) {
+   // Local Test Server
+   case 'http:':     
+   case 'file:':
+     guideServer = 'ws://localhost:3000';
+     break;
+     
+   // Production Server     
+   default: 
+     guideServer = 'wss://guide.intellimedia.ncsu.edu';
+}
+
 var guideProtocol = 'guide-protocol-v2';
 var imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
 var questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
@@ -116,36 +127,26 @@ function startSession() {
   currentUser = getUsername();
   currentSessionId = guid();
   sequenceNumber = 0;
-  var event = {
-    "event": {
-      "username": currentUser,
-      "session": currentSessionId,
-      "time": Date.now(),
-      "sequence": sequenceNumber++,
-      "actor": "SYSTEM",
-      "action": "STARTED",
-      "target": "SESSION"
-    }
-  };
+
+  var event = CreateGuideEvent(
+      "SYSTEM",
+      "STARTED",
+      "SESSION");
+
   // Send event to server
-  socket.emit('event', JSON.stringify(event));
+  socket.emit('event', event.toJson());
   updateSessionStatus(currentSessionId);
 }
 
 function endSession() {
-  var event = {
-    "event": {
-      "username": currentUser,
-      "session": currentSessionId,
-      "time": Date.now(),
-      "sequence": sequenceNumber++,
-      "actor": "SYSTEM",
-      "action": "ENDED",
-      "target": "SESSION"
-    }
-  };
+
+  var event = CreateGuideEvent(
+      "SYSTEM",
+      "ENDED",
+      "SESSION");
+
   // Send event to server
-  socket.emit('event', JSON.stringify(event));
+  socket.emit('event', event.toJson());
   tutorFeedbackQueue = [];
   updateSessionStatus(null);
 }
@@ -172,22 +173,13 @@ function submitOrganism() {
       "The drake you have created doesn't match the target drake. Please try again.");
   }
 
-  var event = {
-    "event": {
-      "username": currentUser,
-      "session": currentSessionId,
-      "time": Date.now(),
-      "sequence": sequenceNumber++,
-      "actor": "USER",
-      "action": "SUBMITTED",
-      "target": "ORGANISM",
-      "context": {
+  var context = {
         "case" : "1",
         "challenge" : "1",
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
-        "editableTraits": targetGenes,
+        "editableGenes": targetGenes,
         "correctPhenotype": {
           "scales": "Five armor",
           "tail": "Long tail",
@@ -214,11 +206,16 @@ function submitOrganism() {
         },
         "correct": correct,
         "incrementMoves": true
-      }
-    }
   };
+
+  var event = CreateGuideEvent(
+      "USER",
+      "SUBMITTED",
+      "ORGANISM",
+      context);  
+
   // Send event to server
-  socket.emit('event', JSON.stringify(event));
+  socket.emit('event', event.toJson());
 }
 
 function randomOrganism() {
@@ -251,6 +248,18 @@ function getUsername() {
 
 //-----------------------------------------------------------------------
 // Helper Functions
+
+function CreateGuideEvent(actor, action, target, context) {
+  return new GuideProtocol.Event(
+      currentUser,
+      currentSessionId,
+      Date.now(),
+      sequenceNumber++,
+      actor,
+      action,      
+      target,
+      context);
+}
 
 function initializeUI(genes, species) {
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
@@ -369,8 +378,8 @@ function createAlleleDropdowns(genes, species) {
   var leftDropdowns = "";
   var rightDropdowns = "";
  
-  var traitsLength = genes.length;
-  for (var i = 0; i < traitsLength; i++) {
+  var genesLength = genes.length;
+  for (var i = 0; i < genesLength; i++) {
 
       var geneInfo = species.geneList[genes[i]];
       if (geneInfo == null || geneInfo.length == 0) {

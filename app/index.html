@@ -5,6 +5,7 @@
 	<meta charset="utf-8">
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="shortcut icon" href="favicon.png" type="image/png" />
 	<title>Guide Client</title>
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -15,7 +16,10 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.2.1/mustache.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.8/socket.io.js"></script>
 
-	<!-- Place favicon.ico in the root directory -->
+	<!-- Javascript shared with guide-server -->
+	<script type="text/javascript" src="https://cdn.rawgit.com/IntelliMedia/guide-server/master/shared/biologica.js"></script>
+	<script type="text/javascript" src="https://cdn.rawgit.com/IntelliMedia/guide-server/master/shared/biologicax.js"></script>
+	<script type="text/javascript" src="https://cdn.rawgit.com/IntelliMedia/guide-server/master/shared/guide-protocol.js"></script>
 
 	<!-- build:css styles/vendor.css -->
 	<!-- bower:css -->
@@ -156,8 +160,6 @@
 	<!-- endbuild -->
 
 	<!-- build:js scripts/main.js -->
-	<script src="scripts/biologica.js"></script>
-	<script src="scripts/biologicaX.js"></script>
 	<script src="scripts/main.js"></script>
 	<!-- endbuild -->
 </body>
