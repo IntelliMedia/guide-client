@@ -1,27 +1,26 @@
 //-----------------------------------------------------------------------
 // Initialize Variables
 
-var guideServer = null;
-switch(window.location.protocol) {
-   // Local Test Server
-   case 'http:':     
-   case 'file:':
-     guideServer = 'ws://localhost:3000';
-     break;
-     
-   // Production Server     
-   default: 
-     guideServer = 'wss://guide.intellimedia.ncsu.edu';
-}
 
-var guideProtocol = 'guide-protocol-v2';
-var imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
-var questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
+/**
+ * Constants
+ */
 
-// Session-related variables
+const guideProtocol = 'guide-protocol-v2';
+const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
+const GuideLocalServer = 'ws://localhost:3000';
+
+const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
+const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
+
+/**
+ * Global Variables
+ */
+
 var sequenceNumber = null;
 var currentUser = null;
 var currentSessionId = null;
+var socket = null;
 
 var targetSpecies = BioLogica.Species.Drake;
 var targetGenes = ["metallic","wings","forelimbs","hindlimbs"];
@@ -36,16 +35,129 @@ var maxRandomAlleles = 10;
 
 var tutorFeedbackQueue = [];
 
-// Replace experiment: https://jsfiddle.net/o82phdd3/
 var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
 
-//-----------------------------------------------------------------------
-// UI Functions
+/**
+ * Main
+ */
 
-document.getElementById('startSessionButton').addEventListener("click", startSession);
-document.getElementById('endSessionButton').addEventListener("click", endSession);
-document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
-document.getElementById('randomOrganismButton').addEventListener("click", randomOrganism);
+// Set up global error handler for uncaught exceptions
+window.onerror = function(messageOrEvent, source, lineno, colno, error) {
+  showError(messageOrEvent);
+  return false;
+}
+
+initializeUI(targetGenes, targetSpecies);
+
+initializeGuideConnection();
+
+/**
+ * socket.io communication and GUIDE Protocol functions
+ */
+
+function initializeGuideConnection() {
+
+  var server = null;
+  switch(window.location.protocol) {
+    // Local Test Server
+    case 'http:':     
+    case 'file:':
+      server = GuideLocalServer;
+      break;
+      
+    // Production Server     
+    default: 
+      server = GuideProductionServer;
+  }
+
+  var serverUrl = server + '/' + guideProtocol;
+  socket = io(serverUrl);
+
+  // Handle socket.io state changes
+
+  socket.on('connect_error', (err) => {
+    showError('Unable to connect: ' + serverUrl);
+  });
+
+  socket.on('connect', () => {
+    showInfo('Connected to ' + serverUrl, 3000);
+  });
+
+  socket.on('disconnect', () => {
+    showInfo('Disconnected');
+  });
+
+  socket.on('reconnect', () => {
+    showInfo('Disconnected!');
+  });
+
+  // Handle messages from GUIDE server
+
+  socket.on(GuideProtocol.TutorDialog.Channel, (data) => {
+    var tutorDialog = GuideProtocol.TutorDialog.fromJson(data);
+    var message = tutorDialog.message.asString();
+    tutorFeedbackQueue.push(message);
+    displayTutorFeedback();
+  });
+
+  socket.on(GuideProtocol.Alert.Channel, (data) => {
+    var alert = GuideProtocol.Alert.fromJson(data);
+    switch (alert.type) {
+      case GuideProtocol.Alert.Error:
+        showPopup(
+          'danger',
+          'Server',
+          alert.message
+        );    
+      break;
+
+      default:
+        showPopup(
+          'info',
+          'Server',
+          alert.message
+        );  
+    }
+  });  
+}
+
+function SendGuideEvent(actor, action, target, context) {
+  var event = new GuideProtocol.Event(
+      currentUser,
+      currentSessionId,
+      sequenceNumber++,
+      actor,
+      action,      
+      target,
+      context);
+
+  socket.emit(GuideProtocol.Event.Channel, event.toJson());
+
+  return event;
+}
+
+/**
+ * UI functions
+ */
+
+function initializeUI(genes, species) {
+
+  document.getElementById('startSessionButton').addEventListener("click", startSession);
+  document.getElementById('endSessionButton').addEventListener("click", endSession);
+  document.getElementById('submitOrganismButton').addEventListener("click", submitOrganism);
+  document.getElementById('randomOrganismButton').addEventListener("click", randomOrganism);
+  
+  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
+  $('#randomOrganismButton').text('Random ' + targetSpecies.name);
+
+  $('.modal').on('hidden.bs.modal', function () {  
+      displayTutorFeedback();
+  })  
+  
+  createAlleleDropdowns(genes, species);
+}
 
 function isModalOpen() {
   var isShown = false; 
@@ -59,69 +171,37 @@ function isModalOpen() {
   return isShown;
 }
 
-$('.modal').on('hidden.bs.modal', function () {  
-    displayTutorFeedback();
-})
+function showPopup(type, title, message) {
+  var popup = $('#' + type + 'Modal').modal('show');
+  popup.find('.modal-title').text(title);
+  popup.find('.modal-body').text(message);
 
-//-----------------------------------------------------------------------
-// Connection Functions
-
-window.onerror = function(messageOrEvent, source, lineno, colno, error) {
-  showError(messageOrEvent);
-  return false;
+  return popup;
 }
 
-initializeUI(targetGenes, targetSpecies);
-
-var serverUrl = guideServer + '/' + guideProtocol;
-var socket = io(serverUrl);
-
-socket.on('connect_error', (err) => {
-  showError('Unable to connect: ' + serverUrl);
-});
-
-socket.on('connect', () => {
-  showInfo('Connected to ' + serverUrl, 3000);
-});
-
-socket.on('disconnect', () => {
-  showInfo('Disconnected');
-});
-
-socket.on('reconnect', () => {
-  showInfo('Disconnected!');
-});
-
-// Handle message from GUIDE server
-socket.on(GuideProtocol.TutorDialog.Channel, (data) => {
-  var tutorDialog = GuideProtocol.TutorDialog.fromJson(data);
-  var message = tutorDialog.message.asString();
-  tutorFeedbackQueue.push(message);
-  displayTutorFeedback();
-});
-
-socket.on(GuideProtocol.Alert.Channel, (data) => {
-  var alert = GuideProtocol.Alert.fromJson(data);
-  switch (alert.type) {
-    case GuideProtocol.Alert.Error:
-      showPopup(
-        'danger',
-        'Server',
-        alert.message
-      );    
-    break;
-
-    default:
-      showPopup(
-        'info',
-        'Server',
-        alert.message
-      );  
+function showInfo(msg, delay) {
+  console.info(msg);
+  if (delay) {
+  	$('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true, delay);
+  } else {
+	  $('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true);
   }
-});
+}
 
-//-----------------------------------------------------------------------
-// Button Handlers
+function showWarning(msg) {
+  console.warn(msg);
+  $('#warning').showBootstrapAlertWarning(msg, Bootstrap.ContentType.Text, false, 5000);
+}
+
+function showError(msg) {
+  console.error(msg);
+  $('#error').showBootstrapAlertDanger(msg, Bootstrap.ContentType.Text, false, 3000);
+}
+
+function showSuccess(msg) {
+  console.info(msg);
+  $('#success').showBootstrapAlertSuccess(msg, Bootstrap.ContentType.Text, true);
+}
 
 function startSession() {
 
@@ -241,43 +321,6 @@ function getUsername() {
   return username;
 }
 
-//-----------------------------------------------------------------------
-// Helper Functions
-
-function SendGuideEvent(actor, action, target, context) {
-  var event = new GuideProtocol.Event(
-      currentUser,
-      currentSessionId,
-      sequenceNumber++,
-      actor,
-      action,      
-      target,
-      context);
-
-  socket.emit(GuideProtocol.Event.Channel, event.toJson());
-
-  return event;
-}
-
-function initializeUI(genes, species) {
-  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
-  $('#randomOrganismButton').text('Random ' + targetSpecies.name);
-  
-  createAlleleDropdowns(genes, species);
-}
-
-function getUsername() {
-  var username = document.getElementById("usernameInput").value;
-  if (!username) {
-    username = randomUsername();
-    document.getElementById("usernameInput").value = username;
-  }
-
-  return username;
-}
-
 function updateSessionStatus(id) {
   if (id) {
     $("#sessionLabel").text(id);
@@ -307,52 +350,8 @@ function displayTutorFeedback() {
     }
 }
 
-function showPopup(type, title, message) {
-  var popup = $('#' + type + 'Modal').modal('show');
-  popup.find('.modal-title').text(title);
-  popup.find('.modal-body').text(message);
-
-  return popup;
-}
-
 function randomUsername() {
   return 'TestUser-' + Math.floor((Math.random() * 1000) + 1).toString();
-}
-
-// Create a GUID
-// source: http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
-function showInfo(msg, delay) {
-  console.info(msg);
-  if (delay) {
-  	$('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true, delay);
-  } else {
-	  $('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true);
-  }
-}
-
-function showWarning(msg) {
-  console.warn(msg);
-  $('#warning').showBootstrapAlertWarning(msg, Bootstrap.ContentType.Text, false, 5000);
-}
-
-function showError(msg) {
-  console.error(msg);
-  $('#error').showBootstrapAlertDanger(msg, Bootstrap.ContentType.Text, false, 3000);
-}
-
-function showSuccess(msg) {
-  console.info(msg);
-  $('#success').showBootstrapAlertSuccess(msg, Bootstrap.ContentType.Text, true);
 }
 
 function createAlleleDropdowns(genes, species) {
@@ -456,6 +455,22 @@ function sprintf(format) {
       : match
     ;
   });
+}
+
+
+/**
+ * Helper functions
+ */
+
+// source: http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
 }
 
 // http://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
