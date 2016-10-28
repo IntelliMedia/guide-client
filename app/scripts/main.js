@@ -51,7 +51,6 @@ function isModalOpen() {
   var isShown = false; 
   $(".modal").each(function(i, popup) { 
     if (($(popup).data('bs.modal') || {}).isShown) {
-      console.log('Popup ' + $(popup).attr('id') + ' is showing');
       isShown = true;
       return;
     }
@@ -66,6 +65,11 @@ $('.modal').on('hidden.bs.modal', function () {
 
 //-----------------------------------------------------------------------
 // Connection Functions
+
+window.onerror = function(messageOrEvent, source, lineno, colno, error) {
+  showError(messageOrEvent);
+  return false;
+}
 
 initializeUI(targetGenes, targetSpecies);
 
@@ -89,18 +93,17 @@ socket.on('reconnect', () => {
 });
 
 // Handle message from GUIDE server
-socket.on('tutorAction', (data) => {
-  var tutorAction = JSON.parse(data).tutorAction;
-  var message = replaceMessageArgs(tutorAction.message);
-  console.log('Received tutor action: ' + message);
+socket.on(GuideProtocol.TutorDialog.Channel, (data) => {
+  var tutorDialog = GuideProtocol.TutorDialog.fromJson(data);
+  var message = tutorDialog.message.asString();
   tutorFeedbackQueue.push(message);
   displayTutorFeedback();
 });
 
-socket.on('alert', (data) => {
-  var alert = JSON.parse(data);
+socket.on(GuideProtocol.Alert.Channel, (data) => {
+  var alert = GuideProtocol.Alert.fromJson(data);
   switch (alert.type) {
-    case 'error':
+    case GuideProtocol.Alert.Error:
       showPopup(
         'danger',
         'Server',
@@ -128,25 +131,21 @@ function startSession() {
   currentSessionId = guid();
   sequenceNumber = 0;
 
-  var event = CreateGuideEvent(
+  SendGuideEvent(
       "SYSTEM",
       "STARTED",
       "SESSION");
 
-  // Send event to server
-  socket.emit('event', event.toJson());
   updateSessionStatus(currentSessionId);
 }
 
 function endSession() {
 
-  var event = CreateGuideEvent(
+  SendGuideEvent(
       "SYSTEM",
       "ENDED",
       "SESSION");
 
-  // Send event to server
-  socket.emit('event', event.toJson());
   tutorFeedbackQueue = [];
   updateSessionStatus(null);
 }
@@ -208,14 +207,11 @@ function submitOrganism() {
         "incrementMoves": true
   };
 
-  var event = CreateGuideEvent(
+  SendGuideEvent(
       "USER",
       "SUBMITTED",
       "ORGANISM",
       context);  
-
-  // Send event to server
-  socket.emit('event', event.toJson());
 }
 
 function randomOrganism() {
@@ -230,7 +226,6 @@ function randomOrganism() {
   updateAlleleDropdowns(yourOrganismAlleles);
 
   var filename = imageUrlBase + targetOrganism.getImageName();
-  console.info('image:' + filename);
   document.getElementById('targetOrganismImage').src = filename; 
   
   document.getElementById('yourOrganismImage').src = questionMarkImageUrl; 
@@ -249,16 +244,19 @@ function getUsername() {
 //-----------------------------------------------------------------------
 // Helper Functions
 
-function CreateGuideEvent(actor, action, target, context) {
-  return new GuideProtocol.Event(
+function SendGuideEvent(actor, action, target, context) {
+  var event = new GuideProtocol.Event(
       currentUser,
       currentSessionId,
-      Date.now(),
       sequenceNumber++,
       actor,
       action,      
       target,
       context);
+
+  socket.emit(GuideProtocol.Event.Channel, event.toJson());
+
+  return event;
 }
 
 function initializeUI(genes, species) {
@@ -292,10 +290,6 @@ function updateSessionStatus(id) {
       $(region).hide();
     }    
   });
-}
-
-function replaceMessageArgs(msg) {
-  return msg.text ? Mustache.render(msg.text, msg.args) : "";
 }
 
 function displayTutorFeedback() {
@@ -416,8 +410,6 @@ function selectDropdownItem(dropdownToggle, selectedItem) {
 
   dropdownToggle.html(selectedText+' <span class="caret"></span>');
   dropdownToggle.attr('selected-allele', selectedValue);
-
-  console.info('selected value:' + selectedValue);  
 }
 
 function updateAllelesFromDropdowns() {
@@ -430,9 +422,7 @@ function updateAllelesFromDropdowns() {
 }
 
 function updateAlleleDropdowns(alleles) {
-  console.info('Set dropdowns to:' + alleles);
   $('button.allele-selection').each(function(i, dropdown) {
-    console.log('dropdown ' + i + ': ' + $(dropdown).text());
     var item  = getDropdownItem($(this), dropdown, alleles);
     if (item == null) {
       item = getRandomDropdownItem($(this), dropdown);
@@ -445,7 +435,6 @@ function getDropdownItem(context, dropdown, alleles) {
     var selectedItem = null;
     
     context.parent(dropdown).find('a').each(function(j, item) {
-      console.log(j + ': ' + $(item).attr('selected-allele'));
       if (alleles.includes($(item).attr('selected-allele'))) {
         selectedItem = item;
         return false;
