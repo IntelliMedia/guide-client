@@ -258,6 +258,8 @@ function submitOrganism() {
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
+        "targetAlleles": targetOrganism.getAlleleString(),
+        "targetSex": targetOrganism.sex,
         "editableGenes": targetGenes,
         "correctPhenotype": {
           "scales": "Five armor",
