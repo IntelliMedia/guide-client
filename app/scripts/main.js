@@ -303,7 +303,7 @@ function randomOrganism() {
   targetOrganism.species.makeAlive(targetOrganism);
 
   yourOrganismSex = targetOrganism.sex;  
-  yourInitialAlleles = BiologicaX.randomizeAlleles(targetGenes, targetOrganism.getAlleleString());
+  yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, targetGenes, targetOrganism.getAlleleString());
   yourOrganismAlleles = yourInitialAlleles; 
   updateAlleleDropdowns(yourOrganismAlleles);
 
@@ -418,7 +418,7 @@ function updateAllelesFromDropdowns() {
     var selectedAllele = $(dropdown).attr('selected-allele');    
     var gene = $(dropdown).attr('gene');    
 
-    yourOrganismAlleles = BiologicaX.replaceAllele(gene, yourOrganismAlleles, selectedAllele);
+    yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
   });
 }
 
