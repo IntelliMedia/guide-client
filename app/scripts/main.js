@@ -152,7 +152,7 @@ function initializeUI(genes, species) {
   })   
   
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#yourOrganismHeader').text('Target ' + targetSpecies.name);
+  $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
   $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
   $('#randomOrganismButton').text('Random ' + targetSpecies.name); 
   
