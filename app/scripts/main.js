@@ -13,6 +13,9 @@ const GuideLocalServer = 'ws://localhost:3000';
 const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
+const DefaultGroup = "Beta";
+const DefaultMissionId = "2.1.1";
+
 /**
  * Global Variables
  */
@@ -211,10 +214,15 @@ function startSession() {
   currentSessionId = guid();
   sequenceNumber = 0;
 
+  var context = {
+      "group" : getGroup()
+  };
+
   SendGuideEvent(
       "SYSTEM",
       "STARTED",
-      "SESSION");
+      "SESSION",
+      context);
 
   updateSessionStatus(currentSessionId);
 }
@@ -253,8 +261,7 @@ function submitOrganism() {
   }
 
   var context = {
-        "case" : "1",
-        "challenge" : "1",
+        "missionId" : getMissionId(),
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
@@ -321,6 +328,26 @@ function getUsername() {
   }
 
   return username;
+}
+
+function getGroup() {
+  var group = $('#groupInput').val();
+  if (!group) {
+    group = DefaultGroup;
+    $('#groupInput').val(group);
+  }
+
+  return group;
+}
+
+function getMissionId() {
+  var missionId = $('#missionIdInput').val();
+  if (!missionId) {
+    missionId = DefaultMissionId;
+    $('#missionIdInput').val(missionId);
+  }
+
+  return missionId;
 }
 
 function updateSessionStatus(id) {

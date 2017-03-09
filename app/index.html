@@ -103,15 +103,33 @@
 	<!-- Session Controls -->
 	<div class="page-header">
 		<h2 id="title">GUIDE Client</h2>
-		<div class="form-group">
-			<input placeholder="Username" class="form-control" id="usernameInput">
+		<div class="row">
+			<div class="form-group col-sm-4">
+				<input placeholder="Username" class="form-control" id="usernameInput">
+			</div>
 		</div>
-		<button class="btn btn-lg btn-success" id="startSessionButton">Start Session</button>
-		<button class="btn btn-lg btn-danger" id="endSessionButton">End Session</button>
-		<div id='sessionLabel'  class='session-region' style="display:none;"></div>
+		<div class="row">
+			<div class="form-group col-sm-4">
+				<input placeholder="Group" class="form-control" id="groupInput">
+			</div>		
+		</div>
+		<div class="row">
+			<div class="form-group col-sm-4">
+				<button class="btn btn-lg btn-success" id="startSessionButton">Start Session</button>
+				<button class="btn btn-lg btn-danger" id="endSessionButton">End Session</button>
+				<div id='sessionLabel'  class='session-region' style="display:none;"></div>
+			</div>
+		</div>
 	</div>
 
-	<div class="container session-region"  style="display:none;"
+	<div class="container session-region"  style="display:none;">
+		<!-- Mission Info -->
+		<div class="row">
+			<div class="col-sm-4">
+				<input placeholder="Mission ID" class="form-control" id="missionIdInput">
+			</div>
+		</div>
+
 		<!-- Genetics Controls -->
 		<div class="row">
 			<div class="col-sm-4">
@@ -126,6 +144,7 @@
 			</div>
 		</div>
 
+		<!-- Genetics Controls -->
 		<h3>Chromosome Control</h3>
 		<div class="row">
 			<div class="col-sm-3" id="left-chromosomes">
