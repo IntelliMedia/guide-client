@@ -14,7 +14,7 @@ const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/
 const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
 const DefaultGroup = "Beta";
-const DefaultMissionId = "2.1.1";
+const DefaultChallengeId = "2.1.1";
 
 /**
  * Global Variables
@@ -261,7 +261,7 @@ function submitOrganism() {
   }
 
   var context = {
-        "missionId" : getMissionId(),
+        "challengeId" : getChallengeId(),
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
@@ -340,14 +340,14 @@ function getGroup() {
   return group;
 }
 
-function getMissionId() {
-  var missionId = $('#missionIdInput').val();
-  if (!missionId) {
-    missionId = DefaultMissionId;
-    $('#missionIdInput').val(missionId);
+function getChallengeId() {
+  var challengeId = $('#challengeIdInput').val();
+  if (!challengeId) {
+    challengeId = DefaultChallengeId;
+    $('#challengeIdInput').val(challengeId);
   }
 
-  return missionId;
+  return challengeId;
 }
 
 function updateSessionStatus(id) {
