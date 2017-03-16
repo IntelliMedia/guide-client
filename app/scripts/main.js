@@ -13,8 +13,8 @@ const GuideLocalServer = 'ws://localhost:3000';
 const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
-const DefaultGroup = "Beta";
-const DefaultGuideId = "2.1.1";
+const DefaultGroupId = "verticalBite";
+const DefaultChallengeId = "egg-breeding-basic-match-visible";
 
 /**
  * Global Variables
@@ -215,7 +215,7 @@ function startSession() {
   sequenceNumber = 0;
 
   var context = {
-      "group" : getGroup()
+      "groupId" : getGroupId()
   };
 
   SendGuideEvent(
@@ -261,36 +261,23 @@ function submitOrganism() {
   }
 
   var context = {
-        "guideId" : getGuideId(),
+        "challengeId" : getGuideId(),
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
-        "targetAlleles": targetOrganism.getAlleleString(),
         "targetSex": targetOrganism.sex,
         "editableGenes": targetGenes,
         "correctPhenotype": {
-          "scales": "Five armor",
-          "tail": "Long tail",
-          "forelimbs": "No forelimbs",
-          "hindlimbs": "Hindlimbs",
-          "horns": "Horns",
-          "nose spike": "No nose spike",
-          "wings": "Wings",
-          "color": "Charcoal",
-          "health": "Healthy",
-          "liveliness": "Alive"
-        },
-        "submittedPhenotype": {
-          "scales": $('.parent1-scales-select').text(),
-          "tail": "Long tail",
-          "forelimbs": "No forelimbs",
-          "hindlimbs": "Hindlimbs",
-          "horns": "Horns",
-          "nose spike": "No nose spike",
-          "wings": "Wings",
-          "color": "Steel",
-          "health": "Healthy",
-          "liveliness": "Alive"
+            "armor": "Five armor",
+            "tail": "Long tail",
+            "forelimbs": "Forelimbs",
+            "hindlimbs": "Hindlimbs",
+            "horns": "Horns",
+            "nose spike": "No nose spike",
+            "wings": "Wings",
+            "color": "Steel",
+            "health": "Healthy",
+            "liveliness": "Alive"
         },
         "correct": correct,
         "incrementMoves": true
@@ -330,24 +317,24 @@ function getUsername() {
   return username;
 }
 
-function getGroup() {
-  var group = $('#groupInput').val();
-  if (!group) {
-    group = DefaultGroup;
-    $('#groupInput').val(group);
+function getGroupId() {
+  var groupId = $('#groupIdInput').val();
+  if (!groupId) {
+    groupId = DefaultGroupId;
+    $('#groupIdInput').val(groupId);
   }
 
-  return group;
+  return groupId;
 }
 
 function getGuideId() {
-  var guideId = $('#guideIdInput').val();
-  if (!guideId) {
-    guideId = DefaultGuideId;
-    $('#guideIdInput').val(guideId);
+  var challengeId = $('#challengeIdInput').val();
+  if (!challengeId) {
+    challengeId = DefaultChallengeId;
+    $('#challengeIdInput').val(challengeId);
   }
 
-  return guideId;
+  return challengeId;
 }
 
 function updateSessionStatus(id) {
@@ -386,7 +373,7 @@ function randomUsername() {
 function createAlleleDropdowns(genes, species) {
 
   var openDropdownHtml = 
-    `<div class="btn-group">
+    `<div class="btn-groupId">
       <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-allele="" gene="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
@@ -429,7 +416,7 @@ function createAlleleDropdowns(genes, species) {
 }
 
 $(".dropdown-menu li a").click(function(){
-  selectDropdownItem($(this).parents('.btn-group').find('.dropdown-toggle'), $(this));
+  selectDropdownItem($(this).parents('.btn-groupId').find('.dropdown-toggle'), $(this));
 });
 
 function selectDropdownItem(dropdownToggle, selectedItem) {
