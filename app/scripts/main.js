@@ -267,18 +267,7 @@ function submitOrganism() {
         "selectedAlleles": yourOrganismAlleles,
         "targetSex": targetOrganism.sex,
         "editableGenes": targetGenes,
-        "correctPhenotype": {
-            "armor": "Five armor",
-            "tail": "Long tail",
-            "forelimbs": "Forelimbs",
-            "hindlimbs": "Hindlimbs",
-            "horns": "Horns",
-            "nose spike": "No nose spike",
-            "wings": "Wings",
-            "color": "Steel",
-            "health": "Healthy",
-            "liveliness": "Alive"
-        },
+        "correctPhenotype": targetOrganism.phenotype.characteristics,
         "correct": correct,
         "incrementMoves": true
   };
