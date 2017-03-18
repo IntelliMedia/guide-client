@@ -265,6 +265,7 @@ function submitOrganism() {
         "species" : targetSpecies.name,
         "initialAlleles": yourInitialAlleles,
         "selectedAlleles": yourOrganismAlleles,
+        "submittedSex": yourOrganism.sex,
         "targetSex": targetOrganism.sex,
         "editableGenes": targetGenes,
         "correctPhenotype": targetOrganism.phenotype.characteristics,
