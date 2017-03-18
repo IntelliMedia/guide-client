@@ -28,7 +28,6 @@ var socket = null;
 var targetSpecies = BioLogica.Species.Drake;
 var targetGenes = ["metallic","wings","forelimbs","hindlimbs"];
 var targetOrganism = null;
-var targetOrganismSex = null;
 var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
@@ -241,6 +240,7 @@ function endSession() {
 function submitOrganism() {
 
   updateAllelesFromDropdowns();
+  updateSexFromDropdown();
   var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
   var filename = imageUrlBase + yourOrganism.getImageName();  
   $('#yourOrganismImage').attr('src', filename);
@@ -282,14 +282,14 @@ function submitOrganism() {
 
 function randomOrganism() {
 
-  targetOrganismSex = Math.floor(2 * Math.random());
-  targetOrganism = new BioLogica.Organism(targetSpecies, "", yourOrganismSex);
+  var targetOrganismSex = Math.floor(2 * Math.random());
+  targetOrganism = new BioLogica.Organism(targetSpecies, "", Number(targetOrganismSex));
   targetOrganism.species.makeAlive(targetOrganism);
-
-  yourOrganismSex = targetOrganism.sex;  
+  
   yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, targetGenes, targetOrganism.getAlleleString());
   yourOrganismAlleles = yourInitialAlleles; 
   updateAlleleDropdowns(yourOrganismAlleles);
+  updateSexDropdown(targetOrganismSex == 0 ? "1" : "0");
 
   var filename = imageUrlBase + targetOrganism.getImageName();
   $('#targetOrganismImage').attr('src', filename); 
@@ -364,10 +364,10 @@ function createAlleleDropdowns(genes, species) {
 
   var openDropdownHtml = 
     `<div class="btn-groupId">
-      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-allele="" gene="{0}">select <span class="caret"></span></button>
+      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" gene="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
-  var itemHtml = `<li><a selected-allele="{1}" >{0}</a></li>`;
+  var itemHtml = `<li><a selected-value="{1}" >{0}</a></li>`;
 
   var closeDropdownHtml = 
     `   </ul>
@@ -411,18 +411,35 @@ $(".dropdown-menu li a").click(function(){
 
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
-  var selectedValue = selectedItem.attr('selected-allele');
+  var selectedValue = selectedItem.attr('selected-value');
 
   dropdownToggle.html(selectedText+' <span class="caret"></span>');
-  dropdownToggle.attr('selected-allele', selectedValue);
+  dropdownToggle.attr('selected-value', selectedValue);
 }
 
 function updateAllelesFromDropdowns() {
   $('button.allele-selection').each(function(i, dropdown) {
-    var selectedAllele = $(dropdown).attr('selected-allele');    
+    var selectedAllele = $(dropdown).attr('selected-value');    
     var gene = $(dropdown).attr('gene');    
 
     yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
+  });
+}
+
+function updateSexFromDropdown() {
+  $('button.sex-selection').each(function(i, dropdown) {
+    var value = $(dropdown).attr('selected-value');  
+    yourOrganismSex = (value ? Number(value) : 0);  
+  });
+}
+
+function updateSexDropdown(sex) {
+  $('button.sex-selection').each(function(i, dropdown) {
+    var item  = getDropdownItem($(this), dropdown, sex);
+    if (item == null) {
+      item = getRandomDropdownItem($(this), dropdown);
+    } 
+    selectDropdownItem($(dropdown), $(item));
   });
 }
 
@@ -436,11 +453,11 @@ function updateAlleleDropdowns(alleles) {
   });
 }
 
-function getDropdownItem(context, dropdown, alleles) {
+function getDropdownItem(context, dropdown, value) {
     var selectedItem = null;
     
     context.parent(dropdown).find('a').each(function(j, item) {
-      if (alleles.includes($(item).attr('selected-allele'))) {
+      if (value.includes($(item).attr('selected-value'))) {
         selectedItem = item;
         return false;
     }});    
