@@ -242,6 +242,7 @@ function submitOrganism() {
   updateAllelesFromDropdowns();
   updateSexFromDropdown();
   var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  yourOrganism.species.makeAlive(yourOrganism);
   var filename = imageUrlBase + yourOrganism.getImageName();  
   $('#yourOrganismImage').attr('src', filename);
 
