@@ -72,6 +72,8 @@ function initializeGuideConnection() {
       server = GuideProductionServer;
   }
 
+  updateConnectionStatus(false);
+
   var serverUrl = server + '/' + guideProtocol;
   socket = io(serverUrl);
 
@@ -99,14 +101,16 @@ function initializeGuideConnection() {
 
   socket.on('connect', () => {
     showInfo('Connected to ' + serverUrl, 3000);
+    updateConnectionStatus(true, serverUrl);
   });
 
   socket.on('disconnect', () => {
     showInfo('Disconnected');
+    updateConnectionStatus(false);
   });
 
   socket.on('reconnect', () => {
-    showInfo('Disconnected!');
+    showInfo('Reconnected!');
   });
 
   // Handle messages from GUIDE server
@@ -342,6 +346,18 @@ function getGuideId() {
   }
 
   return challengeId;
+}
+
+function updateConnectionStatus(isConnected, serverUrl) {
+  if (isConnected) {
+    $("#connectedLabel").show();
+    $("#disconnectedLabel").hide();
+    $("#serverUrl").text(serverUrl);
+  } else {
+    $("#connectedLabel").hide();
+    $("#disconnectedLabel").show();
+    $("#serverUrl").text("");
+  }
 }
 
 function updateSessionStatus(id) {
