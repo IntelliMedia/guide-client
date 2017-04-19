@@ -77,8 +77,24 @@ function initializeGuideConnection() {
 
   // Handle socket.io state changes
 
+  socket.on('error', (err) => {
+    showError('Communication error: ' + err + "\n" + serverUrl);
+  });
+
   socket.on('connect_error', (err) => {
     showError('Unable to connect: ' + serverUrl);
+  });
+
+  socket.on('reconnect_error', (err) => {
+    showError('Unable to reconnect: ' + serverUrl);
+  });
+
+  socket.on('reconnect_failed', (err) => {
+    showError('Reconnect failed: ' + serverUrl);
+  });
+
+  socket.on('connect_timeout', (err) => {
+    showError('Connection timed out: ' + serverUrl);
   });
 
   socket.on('connect', () => {
