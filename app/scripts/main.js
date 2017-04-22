@@ -6,7 +6,7 @@
  * Constants
  */
 
-const guideProtocol = 'guide-protocol-v2';
+const guideProtocol = 'guide-protocol-v3';
 const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
 const GuideLocalServer = 'ws://localhost:3000';
 
@@ -38,6 +38,8 @@ var maxRandomAlleles = 10;
 var tutorFeedbackQueue = [];
 
 var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
+
+var isConnected = false;
 
 /**
  * Main
@@ -84,15 +86,21 @@ function initializeGuideConnection() {
   });
 
   socket.on('connect_error', (err) => {
-    showError('Unable to connect: ' + serverUrl);
+    if (isConnected) {
+      showError('Unable to connect: ' + serverUrl);
+    }
   });
 
   socket.on('reconnect_error', (err) => {
-    showError('Unable to reconnect: ' + serverUrl);
+    if (isConnected) {
+      showError('Unable to reconnect: ' + serverUrl);
+    }
   });
 
   socket.on('reconnect_failed', (err) => {
-    showError('Reconnect failed: ' + serverUrl);
+    if (isConnected) {
+      showError('Reconnect failed: ' + serverUrl);
+    }
   });
 
   socket.on('connect_timeout', (err) => {
@@ -177,6 +185,8 @@ function initializeUI(genes, species) {
   $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
   $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
   $('#randomOrganismButton').text('Random ' + targetSpecies.name); 
+
+  $('#chromosomes').tab('show');
   
   createAlleleDropdowns(genes, species);
 }
@@ -257,6 +267,10 @@ function endSession() {
   updateSessionStatus(null);
 }
 
+function sexToString(sex) {
+  return (sex == 0 ? "Male" : "Female");
+}
+
 function submitOrganism() {
 
   updateAllelesFromDropdowns();
@@ -283,13 +297,21 @@ function submitOrganism() {
 
   var context = {
         "challengeId" : getGuideId(),
-        "species" : targetSpecies.name,
-        "initialAlleles": yourInitialAlleles,
-        "selectedAlleles": yourOrganismAlleles,
-        "submittedSex": yourOrganism.sex,
-        "targetSex": targetOrganism.sex,
-        "editableGenes": targetGenes,
-        "correctPhenotype": targetOrganism.phenotype.characteristics,
+        "challengeCriteria": {
+          "alleles": "a:M,b:M,a:W,b:w,a:Fl,b:Fl,a:hl,b:hl",
+          "sex": sexToString(targetOrganism.sex),
+          "phenotype": targetOrganism.phenotype.characteristics
+        },
+        "userSelections": {
+            "alleles": yourOrganismAlleles,
+            "sex": sexToString(yourOrganism.sex),
+            "phenotype": {
+                "forelimbs": "No forelimbs",
+                "hindlimbs": "Hindlimbs",
+                "wings": "Wings",
+                "color": "Steel"
+            }
+        },
         "correct": correct,
         "incrementMoves": true
   };
@@ -348,7 +370,8 @@ function getGuideId() {
   return challengeId;
 }
 
-function updateConnectionStatus(isConnected, serverUrl) {
+function updateConnectionStatus(connected, serverUrl) {
+  isConnected = connected;
   if (isConnected) {
     $("#connectedLabel").show();
     $("#disconnectedLabel").hide();
