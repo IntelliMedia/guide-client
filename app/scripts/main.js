@@ -14,7 +14,8 @@ const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/
 const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
 const DefaultGroupId = "verticalBite";
-const DefaultChallengeId = "egg-breeding-basic-match-visible";
+const DefaultChromosomeChallengeIdInput = "chromosome-picking-01";
+const DefaultEggDropChallengeIdInput = "egg-drop-01";
 
 /**
  * Global Variables
@@ -31,6 +32,7 @@ var targetOrganism = null;
 var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
+var basketGeneIndex = 0;
 
 var minRandomAlleles = 4;
 var maxRandomAlleles = 10;
@@ -175,7 +177,9 @@ function initializeUI(genes, species) {
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);
   $('#submitOrganismButton').on("click", submitOrganism);
-  $('#randomOrganismButton').on("click", randomOrganism);
+  $('.randomOrganismButton').each(function() {
+    $(this).on("click", randomOrganism);
+  });
 
   $('.modal').on('hidden.bs.modal', function () {  
       displayTutorFeedback();
@@ -184,8 +188,10 @@ function initializeUI(genes, species) {
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
   $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
   $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
-  $('#randomOrganismButton').text('Random ' + targetSpecies.name); 
-
+  $('.randomOrganismButton').each(function() {
+    $(this).text('Random ' + targetSpecies.name);
+  });
+ 
   $('#chromosomes').tab('show');
   
   createAlleleDropdowns(genes, species);
@@ -296,9 +302,8 @@ function submitOrganism() {
   }
 
   var context = {
-        "challengeId" : getGuideId(),
+        "challengeId" : getChromosomeChallengeId(),
         "challengeCriteria": {
-          "alleles": "a:M,b:M,a:W,b:w,a:Fl,b:Fl,a:hl,b:hl",
           "sex": sexToString(targetOrganism.sex),
           "phenotype": targetOrganism.phenotype.characteristics
         },
@@ -320,6 +325,55 @@ function submitOrganism() {
       "USER",
       "SUBMITTED",
       "ORGANISM",
+      context);  
+}
+
+function submitEgg(sex, gene, characteristic) {
+
+  updateAllelesFromDropdowns();
+  updateSexFromDropdown();
+  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  yourOrganism.species.makeAlive(yourOrganism);
+  var filename = imageUrlBase + yourOrganism.getImageName();  
+  $('#yourOrganismImage').attr('src', filename);
+
+  var organismSex = sexToString(targetOrganism.sex);
+  var correct = (organismSex == sex 
+      && BiologicaX.getCharacteristic(targetOrganism, gene) == characteristic);
+
+  if (correct) {
+    showPopup(
+      'success',
+      'Good work!',
+      'The basket you selected matches the egg.');
+
+  } else {
+    showPopup(
+      'danger',
+      "That's not the drake!",
+      "The basket you selected doesn't match the egg. Please try again.");
+  }
+
+  var context = {
+        "challengeId" : getEggDropChallengeId(),
+        "challengeCriteria": {
+          "sex": organismSex,
+          "alleles": targetOrganism.getAlleleString()
+        },
+        "userSelections": {
+            "sex": sex,
+            "phenotype": {
+                gene: characteristic
+            }
+        },
+        "correct": correct,
+        "incrementMoves": true
+  };
+
+  SendGuideEvent(
+      "USER",
+      "SUBMITTED",
+      "EGG",
       context);  
 }
 
@@ -362,11 +416,21 @@ function getGroupId() {
   return groupId;
 }
 
-function getGuideId() {
-  var challengeId = $('#challengeIdInput').val();
+function getChromosomeChallengeId() {
+  var challengeId = $('#chromosomeChallengeIdInput').val();
   if (!challengeId) {
-    challengeId = DefaultChallengeId;
-    $('#challengeIdInput').val(challengeId);
+    challengeId = DefaultChromosomeChallengeIdInput;
+    $('#chromosomeChallengeIdInput').val(challengeId);
+  }
+
+  return challengeId;
+}
+
+function getEggDropChallengeId() {
+  var challengeId = $('#eggDropChallengeIdInput').val();
+  if (!challengeId) {
+    challengeId = DefaultEggDropChallengeIdInput;
+    $('#eggDropChallengeIdInput').val(challengeId);
   }
 
   return challengeId;
@@ -506,7 +570,7 @@ function updateEggDropControls(genes, organism) {
   $('#right-egg-chromosomes').html(rightDropdowns);
   $('#egg-sex').text(sex);
 
-  var basketGene = genes[Math.floor(Math.random()*genes.length)];
+  var basketGene = genes[(basketGeneIndex++ % genes.length)];
   var basketGeneInfo = species.geneList[basketGene];
 
   // Update basket buttons
@@ -516,15 +580,21 @@ function updateEggDropControls(genes, organism) {
     var characterisitic = species.alleleLabelMap[basketGeneInfo.alleles[alleleIndex]];
 
     $(this).attr("sex", sex);
-    $(this).attr("characterisitic", characterisitic);
+    $(this).attr("characteristic", characterisitic);
+    $(this).attr("gene", basketGene);
     $(this).html(sex + " - " + characterisitic);
   });
 }
 
 $("#egg-drop-buttons .btn").click(function(){
+  var sex = $(this).attr("sex");
+  var gene = $(this).attr("gene");
+  var characteristic = $(this).attr("characteristic");
+
   console.info("Basket button pressed: %s - %s",
-    $(this).attr("sex"),
-    $(this).attr("characterisitic"));
+    sex, gene, characteristic);
+
+    submitEgg(sex, gene, characteristic);
 });
 
 $(".dropdown-menu li a").click(function(){
