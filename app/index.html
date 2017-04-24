@@ -219,21 +219,30 @@
 							</div>
 						</div>
 
-						<!-- Chromosome Info -->
+						<!-- Chromosome Info -->>
 						<h3>Egg Info</h3>
 						<div class="row">
-							<div class="col-sm-3" id="left-chromosomes">
+							<div class="col-sm-3" id="left-egg-chromosomes">
 							</div>
-							<div class="col-sm-3" id="right-chromosomes">
+							<div class="col-sm-3" id="right-egg-chromosomes">
 							</div>
 						</div>
 
-						<h3>Baskets</h3>
+						<h3>Sex</h3>
 						<div class="row">
-							<button class="btn btn-lg btn-success top10" id="submitOrganismButton">Female with Horns</button>
-							<button class="btn btn-lg btn-success top10" id="randomOrganismButton">Female without Horns</button>
-							<button class="btn btn-lg btn-success top10" id="submitOrganismButton">Male with Horns</button>
-							<button class="btn btn-lg btn-success top10" id="randomOrganismButton">Male without Horns</button>
+							<ul>
+								<li>
+									<div  id="egg-sex"></div>
+								</li>
+							</ul>
+						</div>
+
+						<h3>Baskets</h3>
+						<div class="row" id="egg-drop-buttons">
+							<button class="btn btn-lg btn-success top10" sex="Male" characterisitic="No horn">Female with Horns</button>
+							<button class="btn btn-lg btn-success top10" sex="Female" characterisitic="Horn">Female without Horns</button>
+							<button class="btn btn-lg btn-success top10" sex="Male" characterisitic="No horn">Male with Horns</button>
+							<button class="btn btn-lg btn-success top10" sex="Female" characterisitic="Horn">Male without Horns</button>
 						</div>	
 
 						<button class="btn btn-lg top10" id="randomOrganismButton">Random Egg</button>

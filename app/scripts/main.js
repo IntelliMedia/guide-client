@@ -338,6 +338,8 @@ function randomOrganism() {
   $('#targetOrganismImage').attr('src', filename); 
   
   $('#yourOrganismImage').attr('src', questionMarkImageUrl); 
+
+  updateEggDropControls(targetGenes, targetOrganism);
 }
 
 function getUsername() {
@@ -460,6 +462,70 @@ function createAlleleDropdowns(genes, species) {
   $('#left-chromosomes').html(leftDropdowns);
   $('#right-chromosomes').html(rightDropdowns);
 }
+
+function updateEggDropControls(genes, organism) {
+
+  var species = organism.species;
+  var alleles = organism.getAlleleString();
+  var sex = (organism.sex == 0 ? "Male" : "Female");
+
+  var openHtml = 
+    `<ul>`;
+
+  var itemHtml = `<li>{0}</li>`;
+
+  var closeHtml = 
+    `</ul>`;
+    
+  var leftDropdowns = "";
+  var rightDropdowns = "";
+
+  leftDropdowns += openHtml;
+  rightDropdowns += openHtml;
+ 
+  var genesLength = genes.length;
+  for (var i = 0; i < genesLength; i++) {
+
+      var geneInfo = species.geneList[genes[i]];
+      if (geneInfo == null || geneInfo.length == 0) {
+        console.warn("Unable to find alleles for " + genes[i]);
+        continue;
+      }
+
+      var leftAllele = BiologicaX.findAllele(species, alleles, "a", genes[i]).replace("a:", "");
+      leftDropdowns += sprintf(itemHtml, species.alleleLabelMap[leftAllele])
+
+      var rightAllele = BiologicaX.findAllele(species, alleles, "b", genes[i]).replace("b:", "");
+      rightDropdowns += sprintf(itemHtml, species.alleleLabelMap[rightAllele]);         
+  }
+
+  leftDropdowns += closeHtml;
+  rightDropdowns += closeHtml;
+
+  $('#left-egg-chromosomes').html(leftDropdowns);
+  $('#right-egg-chromosomes').html(rightDropdowns);
+  $('#egg-sex').text(sex);
+
+  var basketGene = genes[Math.floor(Math.random()*genes.length)];
+  var basketGeneInfo = species.geneList[basketGene];
+
+  // Update basket buttons
+  $("#egg-drop-buttons .btn").each(function(i, dropdown) {
+    var sex = i % 2 == 0 ? "Male" : "Female";
+    var alleleIndex = i < 2 ? 0 : 1;
+    var characterisitic = species.alleleLabelMap[basketGeneInfo.alleles[alleleIndex]];
+
+    $(this).attr("sex", sex);
+    $(this).attr("characterisitic", characterisitic);
+    $(this).html(sex + " - " + characterisitic);
+  });
+}
+
+$("#egg-drop-buttons .btn").click(function(){
+  console.info("Basket button pressed: %s - %s",
+    $(this).attr("sex"),
+    $(this).attr("characterisitic"));
+});
 
 $(".dropdown-menu li a").click(function(){
   selectDropdownItem($(this).parents('.btn-groupId').find('.dropdown-toggle'), $(this));
