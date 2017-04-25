@@ -17,6 +17,8 @@ const DefaultGroupId = "verticalBite";
 const DefaultChromosomeChallengeIdInput = "chromosome-picking-01";
 const DefaultEggDropChallengeIdInput = "egg-drop-01";
 
+const DefaultClassId = 123456789;
+
 /**
  * Global Variables
  */
@@ -245,11 +247,12 @@ function startSession() {
 
   randomOrganism();
 
-  currentUser = getUsername();
+  currentUser = getStudentId();
   currentSessionId = guid();
   sequenceNumber = 0;
 
   var context = {
+      "classId" : getClassId(),
       "groupId" : getGroupId()
   };
 
@@ -396,14 +399,24 @@ function randomOrganism() {
   updateEggDropControls(targetGenes, targetOrganism);
 }
 
-function getUsername() {
-  var username = $('#usernameInput').val();
-  if (!username) {
-    username = randomUsername();
-    $('#usernameInput').val(username);
+function getStudentId() {
+  var studentId = $('#studentIdInput').val();
+  if (!studentId) {
+    studentId = randomStudentId();
+    $('#studentIdInput').val(studentId);
   }
 
-  return username;
+  return studentId;
+}
+
+function getClassId() {
+  var classId = $('#classIdInput').val();
+  if (!classId) {
+    classId = DefaultClassId;
+    $('#classIdInput').val(classId);
+  }
+
+  return classId;
 }
 
 function getGroupId() {
@@ -478,7 +491,7 @@ function displayTutorFeedback() {
     }
 }
 
-function randomUsername() {
+function randomStudentId() {
   return 'TestUser-' + Math.floor((Math.random() * 1000) + 1).toString();
 }
 
