@@ -312,13 +312,7 @@ function submitOrganism() {
         },
         "userSelections": {
             "alleles": yourOrganismAlleles,
-            "sex": sexToString(yourOrganism.sex),
-            "phenotype": {
-                "forelimbs": "No forelimbs",
-                "hindlimbs": "Hindlimbs",
-                "wings": "Wings",
-                "color": "Steel"
-            }
+            "sex": sexToString(yourOrganism.sex)
         },
         "correct": correct,
         "incrementMoves": true
