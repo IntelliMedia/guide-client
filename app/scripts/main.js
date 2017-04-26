@@ -284,8 +284,10 @@ function submitOrganism() {
 
   updateAllelesFromDropdowns();
   updateSexFromDropdown();
+
   var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
   yourOrganism.species.makeAlive(yourOrganism);
+
   var filename = imageUrlBase + yourOrganism.getImageName();  
   $('#yourOrganismImage').attr('src', filename);
 
@@ -311,7 +313,7 @@ function submitOrganism() {
           "phenotype": targetOrganism.phenotype.characteristics
         },
         "userSelections": {
-            "alleles": yourOrganismAlleles,
+            "alleles": yourOrganism.getAlleleString(),
             "sex": sexToString(yourOrganism.sex)
         },
         "correct": correct,
@@ -326,13 +328,6 @@ function submitOrganism() {
 }
 
 function submitEgg(sex, gene, characteristic) {
-
-  updateAllelesFromDropdowns();
-  updateSexFromDropdown();
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  yourOrganism.species.makeAlive(yourOrganism);
-  var filename = imageUrlBase + yourOrganism.getImageName();  
-  $('#yourOrganismImage').attr('src', filename);
 
   var organismSex = sexToString(targetOrganism.sex);
   var correct = (organismSex == sex 
@@ -351,6 +346,9 @@ function submitEgg(sex, gene, characteristic) {
       "The basket you selected doesn't match the egg. Please try again.");
   }
 
+  var selectedPhenotype = {};
+  selectedPhenotype[gene] = characteristic;
+
   var context = {
         "challengeId" : getEggDropChallengeId(),
         "challengeCriteria": {
@@ -359,9 +357,7 @@ function submitEgg(sex, gene, characteristic) {
         },
         "userSelections": {
             "sex": sex,
-            "phenotype": {
-                gene: characteristic
-            }
+            "phenotype":selectedPhenotype
         },
         "correct": correct,
         "incrementMoves": true
