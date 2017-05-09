@@ -185,7 +185,18 @@ function initializeUI(genes, species) {
 
   $('.modal').on('hidden.bs.modal', function () {  
       displayTutorFeedback();
-  })   
+  });
+
+  $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+    if (e.target) {
+      var url = e.target.toString();
+      console.info("tab target: " + url);
+      var anchor = url.substring(url.indexOf("#")+1);
+      if (anchor) {
+        onTabSelected(anchor);
+      }
+    }
+  });
   
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
   $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
@@ -197,6 +208,26 @@ function initializeUI(genes, species) {
   $('#chromosomes').tab('show');
   
   createAlleleDropdowns(genes, species);
+}
+
+function onTabSelected(tabName) {
+  console.info("Tab changed: " + tabName);
+
+  var context = {};
+
+  if (tabName === "eggdrop") {
+    context.challengeId = getEggDropChallengeId();
+  } else if (tabName === "chromosomes") {
+    context.challengeId = getChromosomeChallengeId();
+  }
+
+  if (context.challengeId) {
+    SendGuideEvent(
+        "USER",
+        "NAVIGATED",
+        "CHALLENGE",
+        context);  
+  }
 }
 
 function isModalOpen() {
