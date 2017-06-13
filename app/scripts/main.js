@@ -10,7 +10,7 @@ const guideProtocol = 'guide-protocol-v3';
 const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
 const GuideLocalServer = 'ws://localhost:3000';
 
-const imageUrlBase = 'http://demo.geniverse.concord.org/resources/drakes/images/';
+const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
 
 const DefaultGroupId = "Slice1-May8";
@@ -29,7 +29,7 @@ var currentSessionId = null;
 var socket = null;
 
 var targetSpecies = BioLogica.Species.Drake;
-var targetGenes = ["metallic","wings","forelimbs","hindlimbs"];
+var targetGenes = ["metallic","wings","forelimbs","armor"];
 var targetOrganism = null;
 var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
