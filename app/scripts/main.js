@@ -523,7 +523,7 @@ function createAlleleDropdowns(genes, species) {
       <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" gene="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
-  var itemHtml = `<li><a selected-value="{1}" >{0}</a></li>`;
+  var itemHtml = `<li><a gene="{1}" selected-value="{2}">{0}</a></li>`;
 
   var closeDropdownHtml = 
     `   </ul>
@@ -549,8 +549,8 @@ function createAlleleDropdowns(genes, species) {
       for (var j = 0; j < allelesLength; ++j) {      
           var allele = geneInfo.alleles[j];
           var alleleName = species.alleleLabelMap[allele];
-          leftDropdowns += sprintf(itemHtml, alleleName, 'a:' + allele);
-          rightDropdowns += sprintf(itemHtml, alleleName, 'b:' + allele);
+          leftDropdowns += sprintf(itemHtml, alleleName, genes[i], 'a:' + allele);
+          rightDropdowns += sprintf(itemHtml, alleleName, genes[i], 'b:' + allele);
       }    
 
       leftDropdowns += closeDropdownHtml;
@@ -631,9 +631,35 @@ $("#egg-drop-buttons .btn").click(function(){
     submitEgg(sex, gene, characteristic);
 });
 
-$(".dropdown-menu li a").click(function(){
-  selectDropdownItem($(this).parents('.btn-groupId').find('.dropdown-toggle'), $(this));
+$(".dropdown-menu li a").click(function() {
+  var dropdownGroup = $(this).parents('.btn-groupId');
+  var dropdownToggle = dropdownGroup.find('.dropdown-toggle');
+  var selectedItem = $(this);
+
+  if (dropdownGroup.find(".allele-selection").length > 0
+      && selectedItem.attr('selected-value') != dropdownToggle.attr('selected-value')) {
+        onAlleleChanged(selectedItem.attr('gene'), selectedItem.attr('selected-value'));
+  }
+  selectDropdownItem(dropdownToggle, selectedItem);
 });
+
+function onAlleleChanged(geneName, allele) {
+  console.info("Selected allele: " + geneName + "  allele: " + allele);
+
+  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  yourOrganism.species.makeAlive(yourOrganism);
+
+  var context = {
+      "gene" : geneName,
+      "allele" : allele
+  };
+
+  SendGuideEvent(
+      "USER",
+      "CHANGED",
+      "ALLELE",
+      context);
+}
 
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
@@ -741,3 +767,4 @@ function shuffle(array) {
 
   return array;
 }
+
