@@ -29,7 +29,7 @@ var currentSessionId = null;
 var socket = null;
 
 var targetSpecies = BioLogica.Species.Drake;
-var targetGenes = ["metallic","wings","forelimbs","armor"];
+var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
 var targetOrganism = null;
 var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
@@ -50,7 +50,7 @@ var isConnected = false;
  */
 
 // Set up global error handler for uncaught exceptions
-window.onerror = function(messageOrEvent, source, lineno, colno, error) {
+window.onerror = function (messageOrEvent, source, lineno, colno, error) {
   showError(messageOrEvent);
   return false;
 }
@@ -66,15 +66,15 @@ initializeGuideConnection();
 function initializeGuideConnection() {
 
   var server = null;
-  switch(window.location.protocol) {
+  switch (window.location.protocol) {
     // Local Test Server
-    case 'http:':     
+    case 'http:':
     case 'file:':
       server = GuideLocalServer;
       break;
-      
+
     // Production Server     
-    default: 
+    default:
       server = GuideProductionServer;
   }
 
@@ -142,28 +142,28 @@ function initializeGuideConnection() {
           'danger',
           'Server',
           alert.message
-        );    
-      break;
+        );
+        break;
 
       default:
         showPopup(
           'info',
           'Server',
           alert.message
-        );  
+        );
     }
-  });  
+  });
 }
 
 function SendGuideEvent(actor, action, target, context) {
   var event = new GuideProtocol.Event(
-      currentUser,
-      currentSessionId,
-      sequenceNumber++,
-      actor,
-      action,      
-      target,
-      context);
+    currentUser,
+    currentSessionId,
+    sequenceNumber++,
+    actor,
+    action,
+    target,
+    context);
 
   socket.emit(GuideProtocol.Event.Channel, event.toJson());
 
@@ -178,16 +178,16 @@ function initializeUI(genes, species) {
 
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);
-  
-  $('.modal').on('hidden.bs.modal', function () {  
-      displayTutorFeedback();
+
+  $('.modal').on('hidden.bs.modal', function () {
+    displayTutorFeedback();
   });
 
   $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
     if (e.target) {
       var url = e.target.toString();
       console.info("tab target: " + url);
-      var anchor = url.substring(url.indexOf("#")+1);
+      var anchor = url.substring(url.indexOf("#") + 1);
       if (anchor) {
         onTabSelected(anchor);
       }
@@ -196,7 +196,7 @@ function initializeUI(genes, species) {
 }
 
 function onTabSelected(tabName) {
-  
+
 }
 
 function userNavigatedChallenge(challengeId) {
@@ -206,16 +206,16 @@ function userNavigatedChallenge(challengeId) {
 
   if (context.challengeId) {
     SendGuideEvent(
-        "USER",
-        "NAVIGATED",
-        "CHALLENGE",
-        context);  
+      "USER",
+      "NAVIGATED",
+      "CHALLENGE",
+      context);
   }
 }
 
 function isModalOpen() {
-  var isShown = false; 
-  $(".modal").each(function(i, popup) { 
+  var isShown = false;
+  $(".modal").each(function (i, popup) {
     if (($(popup).data('bs.modal') || {}).isShown) {
       isShown = true;
       return;
@@ -236,9 +236,9 @@ function showPopup(type, title, message) {
 function showInfo(msg, delay) {
   console.info(msg);
   if (delay) {
-  	$('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true, delay);
+    $('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true, delay);
   } else {
-	  $('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true);
+    $('#info').showBootstrapAlertInfo(msg, Bootstrap.ContentType.Text, true);
   }
 }
 
@@ -264,15 +264,15 @@ function startSession() {
   sequenceNumber = 0;
 
   var context = {
-      "classId" : getClassId(),
-      "groupId" : getGroupId()
+    "classId": getClassId(),
+    "groupId": getGroupId()
   };
 
   SendGuideEvent(
-      "SYSTEM",
-      "STARTED",
-      "SESSION",
-      context);
+    "SYSTEM",
+    "STARTED",
+    "SESSION",
+    context);
 
   updateSessionStatus(currentSessionId);
 }
@@ -280,9 +280,9 @@ function startSession() {
 function endSession() {
 
   SendGuideEvent(
-      "SYSTEM",
-      "ENDED",
-      "SESSION");
+    "SYSTEM",
+    "ENDED",
+    "SESSION");
 
   tutorFeedbackQueue = [];
   updateSessionStatus(null);
@@ -336,28 +336,28 @@ function updateSessionStatus(id) {
     $("#sessionLabel").text(id);
   }
 
-  $(".session-region").each(function(i, region) {
+  $(".session-region").each(function (i, region) {
     if (id) {
       $(region).show();
     } else {
       $(region).hide();
-    }    
+    }
   });
 }
 
 function displayTutorFeedback() {
-    if (tutorFeedbackQueue.length == 0 || isModalOpen()) {      
-      return;
-    }
+  if (tutorFeedbackQueue.length == 0 || isModalOpen()) {
+    return;
+  }
 
-    var message = tutorFeedbackQueue.shift();
-    if (message != null) {
-      showPopup(
-        'info',
-        'Tutor',
-        message
-      );
-    }
+  var message = tutorFeedbackQueue.shift();
+  if (message != null) {
+    showPopup(
+      'info',
+      'Tutor',
+      message
+    );
+  }
 }
 
 function randomStudentId() {
@@ -366,11 +366,11 @@ function randomStudentId() {
 
 function sprintf(format) {
   var args = Array.prototype.slice.call(arguments, 1);
-  return format.replace(/{(\d+)}/g, function(match, number) { 
+  return format.replace(/{(\d+)}/g, function (match, number) {
     return typeof args[number] != 'undefined'
-      ? args[number] 
+      ? args[number]
       : match
-    ;
+      ;
   });
 }
 
