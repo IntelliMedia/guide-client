@@ -11,7 +11,7 @@ const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
 const GuideLocalServer = 'ws://localhost:3000';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
-const questionMarkImageUrl = 'http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png';
+const questionMarkImageUrl = 'images/question_mark.png';
 
 const DefaultGroupId = "Slice1-May8";
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
