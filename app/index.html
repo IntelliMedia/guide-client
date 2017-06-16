@@ -146,10 +146,13 @@
 				<div class="row">
 					<ul class="nav nav-pills" id="myTab" role="tablist">
 						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#chromosomes" role="tab" aria-controls="chromosomes">Chromosomes</a>
+							<a class="nav-link" data-toggle="tab" id="chromosomesLink" href="#chromosomesTab" role="tab" aria-controls="chromosomes">Chromosomes</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" data-toggle="tab" href="#eggdrop" role="tab" aria-controls="eggdrop">Egg Drop</a>
+							<a class="nav-link" data-toggle="tab" id="breedingLink" href="#breedingTab" role="tab" aria-controls="breeding">Breeding</a>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" id="eggDropLink" href="#eggdropTab" role="tab" aria-controls="eggdrop">Egg Drop</a>
 						</li>
 					</ul>
 				</div>
@@ -158,99 +161,37 @@
 						$('#myTab a').click(function (e) {
 							$(this).tab('show')
 						});
+
+						$('a#chromosomesLink').click(function(){
+							$("#chromosomesTab").load("chromosomes.html");
+						});
+
+						$('a#breedingLink').click(function(){
+							$("#breedingTab").load("breeding.html");
+						});
+
+						$('a#eggDropLink').click(function(){
+							$("#eggdropTab").load("eggdrop.html");
+						});
 					})
 				</script>
 
 				<!-- Tab panes -->
 				<div class="tab-content">
 
-					<div class="tab-pane" style="margin:20px" id="chromosomes" role="tabpanel">
-
-						<!-- Challenge Info -->
-						<div class="row">
-							<div class="col-sm-4">
-								<input placeholder="chromosomeChallengeId" class="form-control" id="chromosomeChallengeIdInput">
-							</div>
-						</div>
-
-						<!-- Genetics Controls -->
-						<div class="row">
-							<div class="col-sm-4">
-								<h3 class="text-center" id="targetOrganismHeader">Target Organism</h3>
-								<img class="img-responsive center-block" src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
-								 id="targetOrganismImage" />
-							</div>
-							<div class="col-sm-4">
-								<h3 class="text-center" id="yourOrganismHeader">Your Organism</h3>
-								<img class="img-responsive center-block" src="http://demo.geniverse.concord.org/static/geniverse/en/16d25bc8d16599c46291ead05fd2bd8bc9192d1f/resources/images/question_mark.png"
-								 id="yourOrganismImage" />
-							</div>
-						</div>
-
-						<!-- Genetics Controls -->
-						<h3>Chromosome Control</h3>
-						<div class="row">
-							<div class="col-sm-3" id="left-chromosomes">
-							</div>
-							<div class="col-sm-3" id="right-chromosomes">
-							</div>
-						</div>
-
-						<!-- Sex Control -->
-						<h3>Sex</h3>
-						<div class="row">
-							<div class="col-sm-3">
-								<div class="btn-groupId">
-									<button class="btn dropdown-toggle sex-selection" type="button" data-toggle="dropdown" selected-value="">select <span class="caret"></span></button>
-									<ul class="dropdown-menu">
-										<li><a selected-value="1">Female</a></li>
-										<li><a selected-value="0">Male</a></li>
-									</ul>
-								</div>
-							</div>
-							<p/>
-						</div>
-
-						<button class="btn btn-lg btn-primary top10" id="submitOrganismButton">Submit Organism</button>
-						<button class="btn btn-lg top10 randomOrganismButton">Random Organism</button>
+					<!-- Breeding -->
+					<div class="tab-pane" style="margin:20px" id="breedingTab" role="tabpanel">
+						<h3>breeding placeholder</h3>
 					</div>
 
-					<div class="tab-pane" style="margin:20px" id="eggdrop" role="tabpanel">
+					<!-- Chromosomes -->
+					<div class="tab-pane" style="margin:20px" id="chromosomesTab" role="tabpanel">  
+						<h3>chromosomes placeholder</h3>
+					</div>
 
-						<!-- Challenge Info -->
-						<div class="row">
-							<div class="col-sm-4">
-								<input placeholder="eggDropChallengeId" class="form-control" id="eggDropChallengeIdInput">
-							</div>
-						</div>
-
-						<!-- Chromosome Info -->
-						<h3>Egg Info</h3>
-						<div class="row">
-							<div class="col-sm-3" id="left-egg-chromosomes">
-							</div>
-							<div class="col-sm-3" id="right-egg-chromosomes">
-							</div>
-						</div>
-
-						<h3>Sex</h3>
-						<div class="row">
-							<ul>
-								<li>
-									<div  id="egg-sex"></div>
-								</li>
-							</ul>
-						</div>
-
-						<h3>Baskets</h3>
-						<div class="row" id="egg-drop-buttons">
-							<button class="btn btn-lg btn-success top10" sex="Foo" gene="color" characteristic="Hello">Female with Horns</button>
-							<button class="btn btn-lg btn-success top10" sex="Bar" gene="color" characteristic="World">Female without Horns</button>
-							<button class="btn btn-lg btn-success top10" sex="Foo" gene="color" characteristic="World">Male with Horns</button>
-							<button class="btn btn-lg btn-success top10" sex="Bar" gene="color" characteristic="Hello">Male without Horns</button>
-						</div>	
-
-						<button class="btn btn-lg top10 randomOrganismButton">Random Egg</button>
+					<!-- Egg Drop -->
+					<div class="tab-pane" style="margin:20px" id="eggdropTab" role="tabpanel">
+						<h3>egg drop placeholder</h3>
 					</div>
 				</div>
 			</div>

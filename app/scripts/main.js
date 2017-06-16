@@ -178,11 +178,7 @@ function initializeUI(genes, species) {
 
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);
-  $('#submitOrganismButton').on("click", submitOrganism);
-  $('.randomOrganismButton').each(function() {
-    $(this).on("click", randomOrganism);
-  });
-
+  
   $('.modal').on('hidden.bs.modal', function () {  
       displayTutorFeedback();
   });
@@ -197,29 +193,16 @@ function initializeUI(genes, species) {
       }
     }
   });
-  
-  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
-  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
-  $('.randomOrganismButton').each(function() {
-    $(this).text('Random ' + targetSpecies.name);
-  });
- 
-  $('#chromosomes').tab('show');
-  
-  createAlleleDropdowns(genes, species);
 }
 
 function onTabSelected(tabName) {
-  console.info("Tab changed: " + tabName);
+  
+}
+
+function userNavigatedChallenge(challengeId) {
 
   var context = {};
-
-  if (tabName === "eggdrop") {
-    context.challengeId = getEggDropChallengeId();
-  } else if (tabName === "chromosomes") {
-    context.challengeId = getChromosomeChallengeId();
-  }
+  context.challengeId = challengeId;
 
   if (context.challengeId) {
     SendGuideEvent(
@@ -276,8 +259,6 @@ function showSuccess(msg) {
 
 function startSession() {
 
-  randomOrganism();
-
   currentUser = getStudentId();
   currentSessionId = guid();
   sequenceNumber = 0;
@@ -305,119 +286,6 @@ function endSession() {
 
   tutorFeedbackQueue = [];
   updateSessionStatus(null);
-}
-
-function sexToString(sex) {
-  return (sex == 0 ? "Male" : "Female");
-}
-
-function submitOrganism() {
-
-  updateAllelesFromDropdowns();
-  updateSexFromDropdown();
-
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  yourOrganism.species.makeAlive(yourOrganism);
-
-  var filename = imageUrlBase + yourOrganism.getImageName();  
-  $('#yourOrganismImage').attr('src', filename);
-
-  var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
-
-  if (correct) {
-    showPopup(
-      'success',
-      'Good work!',
-      'The drake you have created matches the target drake.');
-
-  } else {
-    showPopup(
-      'danger',
-      "That's not the drake!",
-      "The drake you have created doesn't match the target drake. Please try again.");
-  }
-
-  var context = {
-        "challengeId" : getChromosomeChallengeId(),
-        "challengeCriteria": {
-          "sex": sexToString(targetOrganism.sex),
-          "phenotype": targetOrganism.phenotype.characteristics
-        },
-        "userSelections": {
-            "alleles": yourOrganism.getAlleleString(),
-            "sex": sexToString(yourOrganism.sex)
-        },
-        "correct": correct,
-        "incrementMoves": true
-  };
-
-  SendGuideEvent(
-      "USER",
-      "SUBMITTED",
-      "ORGANISM",
-      context);  
-}
-
-function submitEgg(sex, gene, characteristic) {
-
-  var organismSex = sexToString(targetOrganism.sex);
-  var correct = (organismSex == sex 
-      && BiologicaX.getCharacteristic(targetOrganism, gene) == characteristic);
-
-  if (correct) {
-    showPopup(
-      'success',
-      'Good work!',
-      'The basket you selected matches the egg.');
-
-  } else {
-    showPopup(
-      'danger',
-      "That's not the drake!",
-      "The basket you selected doesn't match the egg. Please try again.");
-  }
-
-  var selectedPhenotype = {};
-  selectedPhenotype[gene] = characteristic;
-
-  var context = {
-        "challengeId" : getEggDropChallengeId(),
-        "challengeCriteria": {
-          "sex": organismSex,
-          "alleles": targetOrganism.getAlleleString()
-        },
-        "userSelections": {
-            "sex": sex,
-            "phenotype":selectedPhenotype
-        },
-        "correct": correct,
-        "incrementMoves": true
-  };
-
-  SendGuideEvent(
-      "USER",
-      "SUBMITTED",
-      "EGG",
-      context);  
-}
-
-function randomOrganism() {
-
-  var targetOrganismSex = Math.floor(2 * Math.random());
-  targetOrganism = new BioLogica.Organism(targetSpecies, "", Number(targetOrganismSex));
-  targetOrganism.species.makeAlive(targetOrganism);
-  
-  yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, targetGenes, targetOrganism.getAlleleString());
-  yourOrganismAlleles = yourInitialAlleles; 
-  updateAlleleDropdowns(yourOrganismAlleles);
-  updateSexDropdown(targetOrganismSex == 0 ? "1" : "0");
-
-  var filename = imageUrlBase + targetOrganism.getImageName();
-  $('#targetOrganismImage').attr('src', filename); 
-  
-  $('#yourOrganismImage').attr('src', questionMarkImageUrl); 
-
-  updateEggDropControls(targetGenes, targetOrganism);
 }
 
 function getStudentId() {
@@ -448,26 +316,6 @@ function getGroupId() {
   }
 
   return groupId;
-}
-
-function getChromosomeChallengeId() {
-  var challengeId = $('#chromosomeChallengeIdInput').val();
-  if (!challengeId) {
-    challengeId = DefaultChromosomeChallengeIdInput;
-    $('#chromosomeChallengeIdInput').val(challengeId);
-  }
-
-  return challengeId;
-}
-
-function getEggDropChallengeId() {
-  var challengeId = $('#eggDropChallengeIdInput').val();
-  if (!challengeId) {
-    challengeId = DefaultEggDropChallengeIdInput;
-    $('#eggDropChallengeIdInput').val(challengeId);
-  }
-
-  return challengeId;
 }
 
 function updateConnectionStatus(connected, serverUrl) {
@@ -514,212 +362,6 @@ function displayTutorFeedback() {
 
 function randomStudentId() {
   return 'TestUser-' + Math.floor((Math.random() * 1000) + 1).toString();
-}
-
-function createAlleleDropdowns(genes, species) {
-
-  var openDropdownHtml = 
-    `<div class="btn-groupId">
-      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" gene="{0}">select <span class="caret"></span></button>
-        <ul class="dropdown-menu">`;
-
-  var itemHtml = `<li><a gene="{1}" selected-value="{2}">{0}</a></li>`;
-
-  var closeDropdownHtml = 
-    `   </ul>
-    </div>
-    <p>`;
-    
-  var leftDropdowns = "";
-  var rightDropdowns = "";
- 
-  var genesLength = genes.length;
-  for (var i = 0; i < genesLength; i++) {
-
-      var geneInfo = species.geneList[genes[i]];
-      if (geneInfo == null || geneInfo.length == 0) {
-        console.warn("Unable to find alleles for " + genes[i]);
-        continue;
-      }
-
-      leftDropdowns += sprintf(openDropdownHtml, genes[i]);
-      rightDropdowns += sprintf(openDropdownHtml, genes[i]);
-
-      var allelesLength = geneInfo.alleles.length;
-      for (var j = 0; j < allelesLength; ++j) {      
-          var allele = geneInfo.alleles[j];
-          var alleleName = species.alleleLabelMap[allele];
-          leftDropdowns += sprintf(itemHtml, alleleName, genes[i], 'a:' + allele);
-          rightDropdowns += sprintf(itemHtml, alleleName, genes[i], 'b:' + allele);
-      }    
-
-      leftDropdowns += closeDropdownHtml;
-      rightDropdowns += closeDropdownHtml;      
-  }
-
-  $('#left-chromosomes').html(leftDropdowns);
-  $('#right-chromosomes').html(rightDropdowns);
-}
-
-function updateEggDropControls(genes, organism) {
-
-  var species = organism.species;
-  var alleles = organism.getAlleleString();
-  var sex = (organism.sex == 0 ? "Male" : "Female");
-
-  var openHtml = 
-    `<ul>`;
-
-  var itemHtml = `<li>{0}</li>`;
-
-  var closeHtml = 
-    `</ul>`;
-    
-  var leftDropdowns = "";
-  var rightDropdowns = "";
-
-  leftDropdowns += openHtml;
-  rightDropdowns += openHtml;
- 
-  var genesLength = genes.length;
-  for (var i = 0; i < genesLength; i++) {
-
-      var geneInfo = species.geneList[genes[i]];
-      if (geneInfo == null || geneInfo.length == 0) {
-        console.warn("Unable to find alleles for " + genes[i]);
-        continue;
-      }
-
-      var leftAllele = BiologicaX.findAllele(species, alleles, "a", genes[i]).replace("a:", "");
-      leftDropdowns += sprintf(itemHtml, species.alleleLabelMap[leftAllele])
-
-      var rightAllele = BiologicaX.findAllele(species, alleles, "b", genes[i]).replace("b:", "");
-      rightDropdowns += sprintf(itemHtml, species.alleleLabelMap[rightAllele]);         
-  }
-
-  leftDropdowns += closeHtml;
-  rightDropdowns += closeHtml;
-
-  $('#left-egg-chromosomes').html(leftDropdowns);
-  $('#right-egg-chromosomes').html(rightDropdowns);
-  $('#egg-sex').text(sex);
-
-  var basketGene = genes[(basketGeneIndex++ % genes.length)];
-  var basketGeneInfo = species.geneList[basketGene];
-
-  // Update basket buttons
-  $("#egg-drop-buttons .btn").each(function(i, dropdown) {
-    var sex = i % 2 == 0 ? "Male" : "Female";
-    var alleleIndex = i < 2 ? 0 : 1;
-    var characterisitic = species.alleleLabelMap[basketGeneInfo.alleles[alleleIndex]];
-
-    $(this).attr("sex", sex);
-    $(this).attr("characteristic", characterisitic);
-    $(this).attr("gene", basketGene);
-    $(this).html(sex + " - " + characterisitic);
-  });
-}
-
-$("#egg-drop-buttons .btn").click(function(){
-  var sex = $(this).attr("sex");
-  var gene = $(this).attr("gene");
-  var characteristic = $(this).attr("characteristic");
-
-  console.info("Basket button pressed: %s - %s",
-    sex, gene, characteristic);
-
-    submitEgg(sex, gene, characteristic);
-});
-
-$(".dropdown-menu li a").click(function() {
-  var dropdownGroup = $(this).parents('.btn-groupId');
-  var dropdownToggle = dropdownGroup.find('.dropdown-toggle');
-  var selectedItem = $(this);
-
-  if (dropdownGroup.find(".allele-selection").length > 0
-      && selectedItem.attr('selected-value') != dropdownToggle.attr('selected-value')) {
-        onAlleleChanged(selectedItem.attr('gene'), selectedItem.attr('selected-value'));
-  }
-  selectDropdownItem(dropdownToggle, selectedItem);
-});
-
-function onAlleleChanged(geneName, allele) {
-  console.info("Selected allele: " + geneName + "  allele: " + allele);
-
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  yourOrganism.species.makeAlive(yourOrganism);
-
-  var context = {
-      "gene" : geneName,
-      "allele" : allele
-  };
-
-  SendGuideEvent(
-      "USER",
-      "CHANGED",
-      "ALLELE",
-      context);
-}
-
-function selectDropdownItem(dropdownToggle, selectedItem) {
-  var selectedText = selectedItem.text();
-  var selectedValue = selectedItem.attr('selected-value');
-
-  dropdownToggle.html(selectedText+' <span class="caret"></span>');
-  dropdownToggle.attr('selected-value', selectedValue);
-}
-
-function updateAllelesFromDropdowns() {
-  $('button.allele-selection').each(function(i, dropdown) {
-    var selectedAllele = $(dropdown).attr('selected-value');    
-    var gene = $(dropdown).attr('gene');    
-
-    yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
-  });
-}
-
-function updateSexFromDropdown() {
-  $('button.sex-selection').each(function(i, dropdown) {
-    var value = $(dropdown).attr('selected-value');  
-    yourOrganismSex = (value ? Number(value) : 0);  
-  });
-}
-
-function updateSexDropdown(sex) {
-  $('button.sex-selection').each(function(i, dropdown) {
-    var item  = getDropdownItem($(this), dropdown, sex);
-    if (item == null) {
-      item = getRandomDropdownItem($(this), dropdown);
-    } 
-    selectDropdownItem($(dropdown), $(item));
-  });
-}
-
-function updateAlleleDropdowns(alleles) {
-  $('button.allele-selection').each(function(i, dropdown) {
-    var item  = getDropdownItem($(this), dropdown, alleles);
-    if (item == null) {
-      item = getRandomDropdownItem($(this), dropdown);
-    } 
-    selectDropdownItem($(dropdown), $(item));
-  });
-}
-
-function getDropdownItem(context, dropdown, value) {
-    var selectedItem = null;
-    
-    context.parent(dropdown).find('a').each(function(j, item) {
-      if (value.includes($(item).attr('selected-value'))) {
-        selectedItem = item;
-        return false;
-    }});    
-
-    return selectedItem;
-}
-
-function getRandomDropdownItem(context, dropdown) {
-  var items = context.parent(dropdown).find('a');
-  return items[ExtMath.randomInt(items.length)];
 }
 
 function sprintf(format) {

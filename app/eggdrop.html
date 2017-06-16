@@ -1,0 +1,38 @@
+<!-- Challenge Info -->
+<div class="row">
+    <div class="col-sm-4">
+        <input placeholder="eggDropChallengeId" class="form-control" id="eggDropChallengeIdInput">
+    </div>
+</div>
+
+<!-- Chromosome Info -->
+<h3>Egg Info</h3>
+<div class="row">
+    <div class="col-sm-3" id="left-egg-chromosomes">
+    </div>
+    <div class="col-sm-3" id="right-egg-chromosomes">
+    </div>
+</div>
+
+<h3>Sex</h3>
+<div class="row">
+    <ul>
+        <li>
+            <div id="egg-sex"></div>
+        </li>
+    </ul>
+</div>
+
+<h3>Baskets</h3>
+<div class="row" id="egg-drop-buttons">
+    <button class="btn btn-lg btn-success top10" sex="Foo" gene="color" characteristic="Hello">Female with Horns</button>
+    <button class="btn btn-lg btn-success top10" sex="Bar" gene="color" characteristic="World">Female without Horns</button>
+    <button class="btn btn-lg btn-success top10" sex="Foo" gene="color" characteristic="World">Male with Horns</button>
+    <button class="btn btn-lg btn-success top10" sex="Bar" gene="color" characteristic="Hello">Male without Horns</button>
+</div>
+
+<button class="btn btn-lg top10 randomOrganismButton">Random Egg</button>
+
+<!-- build:js scripts/main.js -->
+<script src="scripts/eggdrop.js"></script>
+<!-- endbuild -->
