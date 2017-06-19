@@ -1,3 +1,8 @@
+const DefaultEggDropChallengeIdInput = "eggDrop-wings";
+
+var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var targetOrganism = null;
+var basketGeneIndex = 0;
 
 initialize(targetGenes, targetSpecies);
 

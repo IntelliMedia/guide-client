@@ -14,8 +14,6 @@ const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/i
 const questionMarkImageUrl = 'images/question_mark.png';
 
 const DefaultGroupId = "Slice1-May8";
-const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
-const DefaultEggDropChallengeIdInput = "eggDrop-wings";
 
 const DefaultClassId = 123456789;
 
@@ -29,19 +27,8 @@ var currentSessionId = null;
 var socket = null;
 
 var targetSpecies = BioLogica.Species.Drake;
-var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
-var targetOrganism = null;
-var yourInitialAlleles = null;
-var yourOrganismAlleles = null;
-var yourOrganismSex = null;
-var basketGeneIndex = 0;
-
-var minRandomAlleles = 4;
-var maxRandomAlleles = 10;
 
 var tutorFeedbackQueue = [];
-
-var drakeAlleles = "a:T,b:t,a:m,b:m,a:w,b:W,a:h,b:h,a:C,b:C,a:B,b:B,a:Fl,b:Fl,a:Hl,b:hl,a:a,b:a,a:D,b:D,a:Bog,b:Bog,a:rh,b:rh";
 
 var isConnected = false;
 
@@ -55,7 +42,7 @@ window.onerror = function (messageOrEvent, source, lineno, colno, error) {
   return false;
 }
 
-initializeUI(targetGenes, targetSpecies);
+initializeUI();
 
 initializeGuideConnection();
 
@@ -174,7 +161,7 @@ function SendGuideEvent(actor, action, target, context) {
  * UI functions
  */
 
-function initializeUI(genes, species) {
+function initializeUI() {
 
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);

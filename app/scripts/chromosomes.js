@@ -1,3 +1,14 @@
+const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
+
+var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var minRandomAlleles = 4;
+var maxRandomAlleles = 10;
+
+var targetOrganism = null;
+var yourInitialAlleles = null;
+var yourOrganismAlleles = null;
+var yourOrganismSex = null;
+
 initializeUI(targetGenes, targetSpecies);
 
 function initializeUI(genes, species) {

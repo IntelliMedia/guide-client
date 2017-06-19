@@ -1,108 +1,43 @@
-initializeUI(targetGenes, targetSpecies);
+var DefaultBreedingChallengeIdInput = "foo-bar";
+
+var breedingGenes = ["metallic", "wings", "forelimbs", "armor"];
+var breedingRandomAlleles = 4;
+
+var motherOrganism = null;
+var fatherOrganism = null;
+var targetOrganism = null;
+
+var clutchOrganisms = [];
+
+
+var yourInitialAlleles = null;
+var yourOrganismAlleles = null;
+var yourOrganismSex = null;
+
+initializeUI(breedingGenes, targetSpecies);
 
 function initializeUI(genes, species) {
 
-  console.info("Initialize Chromosomes challenege");
+  console.info("Initialize Breeding challenge");
 
-  $('#submitOrganismButton').on("click", submitOrganism);
-  $('.randomOrganismButton').each(function () {
-    $(this).on("click", randomOrganism);
+  $('#breedButton').on("click", breed);
+  $('.randomizeButton').each(function () {
+    $(this).on("click", randomize);
   });
 
-
+  $('#motherOrganismHeader').text('Mother ' + targetSpecies.name);
   $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#yourOrganismHeader').text('Your ' + targetSpecies.name);
-  $('#submitOrganismButton').text('Submit ' + targetSpecies.name);
-  $('.randomOrganismButton').each(function () {
-    $(this).text('Random ' + targetSpecies.name);
-  });
+  $('#fatherOrganismHeader').text('Father ' + targetSpecies.name);
 
-  createAlleleDropdowns(genes, species);
+  createAlleleDropdowns($('#mother'), genes, species);
+  createAlleleDropdowns($('#father'), genes, species);
 
-  randomOrganism();
+  randomize();
 
-  userNavigatedChallenge(getChromosomeChallengeId());
+  userNavigatedChallenge(getBreedingChallengeId());
 }
 
-function submitOrganism() {
-
-  updateAllelesFromDropdowns();
-  updateSexFromDropdown();
-
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  yourOrganism.species.makeAlive(yourOrganism);
-
-  var filename = imageUrlBase + yourOrganism.getImageName();
-  $('#yourOrganismImage').attr('src', filename);
-
-  var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
-
-  if (correct) {
-    showPopup(
-      'success',
-      'Good work!',
-      'The drake you have created matches the target drake.');
-
-  } else {
-    showPopup(
-      'danger',
-      "That's not the drake!",
-      "The drake you have created doesn't match the target drake. Please try again.");
-  }
-
-  var context = {
-    "challengeId": getChromosomeChallengeId(),
-    "challengeCriteria": {
-      "sex": sexToString(targetOrganism.sex),
-      "phenotype": targetOrganism.phenotype.characteristics
-    },
-    "userSelections": {
-      "alleles": yourOrganism.getAlleleString(),
-      "sex": sexToString(yourOrganism.sex)
-    },
-    "correct": correct,
-    "incrementMoves": true
-  };
-
-  SendGuideEvent(
-    "USER",
-    "SUBMITTED",
-    "ORGANISM",
-    context);
-}
-
-function sexToString(sex) {
-  return (sex == 0 ? "Male" : "Female");
-}
-
-function randomOrganism() {
-
-  var targetOrganismSex = Math.floor(2 * Math.random());
-  targetOrganism = new BioLogica.Organism(targetSpecies, "", Number(targetOrganismSex));
-  targetOrganism.species.makeAlive(targetOrganism);
-
-  yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, targetGenes, targetOrganism.getAlleleString());
-  yourOrganismAlleles = yourInitialAlleles;
-  updateAlleleDropdowns(yourOrganismAlleles);
-  updateSexDropdown(targetOrganismSex == 0 ? "1" : "0");
-
-  var filename = imageUrlBase + targetOrganism.getImageName();
-  $('#targetOrganismImage').attr('src', filename);
-
-  $('#yourOrganismImage').attr('src', questionMarkImageUrl);
-}
-
-function getChromosomeChallengeId() {
-  var challengeId = $('#chromosomeChallengeIdInput').val();
-  if (!challengeId) {
-    challengeId = DefaultChromosomeChallengeIdInput;
-    $('#chromosomeChallengeIdInput').val(challengeId);
-  }
-
-  return challengeId;
-}
-
-function createAlleleDropdowns(genes, species) {
+function createAlleleDropdowns(organismDiv, genes, species) {
 
   var openDropdownHtml =
     `<div class="btn-groupId">
@@ -143,8 +78,122 @@ function createAlleleDropdowns(genes, species) {
     rightDropdowns += closeDropdownHtml;
   }
 
-  $('#left-chromosomes').html(leftDropdowns);
-  $('#right-chromosomes').html(rightDropdowns);
+  organismDiv.find('.left-chromosomes').html(leftDropdowns);
+  organismDiv.find('.right-chromosomes').html(rightDropdowns);
+}
+
+function createClutchButtons(clutchOrganisms) {
+
+  var clutchDiv = $('#clutch');
+  clutchDiv.html("");
+
+  var itemHtml = 
+    '<button id="clutch-{0}" clutch="{0}" class="btn btn-default submit-button"><img src="{1}" width="100"/></button>';
+
+  var clutchHtml = "";
+
+  var clutchLength = clutchOrganisms.length;
+  for (var i = 0; i < clutchLength; i++) {
+    clutchHtml += sprintf(itemHtml, i, imageUrlBase + clutchOrganisms[i].getImageName());
+  }
+
+  clutchDiv.html(clutchHtml);
+
+  clutchDiv.find('.submit-button').click(function() {
+    submitOffspring($(this).attr("clutch"));
+  });
+}
+
+function submitOffspring(offspringIndex) {
+  var submittedOrganism = clutchOrganisms[offspringIndex];
+
+  console.info("Submit " + submittedOrganism.getImageName());  
+
+  var correct = (submittedOrganism.getImageName() == targetOrganism.getImageName());
+
+  if (correct) {
+    showPopup(
+      'success',
+      'Good work!',
+      'The drake you have created matches the target drake.');
+
+  } else {
+    showPopup(
+      'danger',
+      "That's not the drake!",
+      "The drake you have created doesn't match the target drake. Please try again.");
+  }
+
+  var context = {
+    "challengeId": getBreedingChallengeId(),
+    "challengeCriteria": {
+      "offspringSex": sexToString(targetOrganism.sex),
+      "offspringPhenotype": targetOrganism.phenotype.characteristics
+    },
+    "userSelections": {
+      "motherAlleles": motherOrganism.getAlleleString(),
+      "fatherAlleles": fatherOrganism.getAlleleString(),
+      "offspringAlleles": submittedOrganism.getAlleleString(),
+      "offspringSex": sexToString(submittedOrganism.sex)
+    },
+    "correct": correct
+  };
+
+  SendGuideEvent(
+    "USER",
+    "SUBMITTED",
+    "OFFSPRING",
+    context);
+}
+
+function breed() {
+    clutchOrganisms = [];
+    for(var i = 0; i < 8; ++i) {
+      var organism = BioLogica.breed(motherOrganism, fatherOrganism);
+      organism.species.makeAlive(organism);
+      clutchOrganisms.push(organism);
+    }
+
+    createClutchButtons(clutchOrganisms);
+}
+
+function sexToString(sex) {
+  return (sex == 0 ? "Male" : "Female");
+}
+
+function randomize() {
+
+  motherOrganism = new BioLogica.Organism(targetSpecies, "", Number(0));
+  motherOrganism.species.makeAlive(motherOrganism);
+  var motherFilename = imageUrlBase + motherOrganism.getImageName();
+  $('#motherOrganismImage').attr('src', motherFilename);
+
+  fatherOrganism = new BioLogica.Organism(targetSpecies, "", Number(1));
+  fatherOrganism.species.makeAlive(fatherOrganism);
+  var fatherFilename = imageUrlBase + fatherOrganism.getImageName();
+  $('#fatherOrganismImage').attr('src', fatherFilename);
+
+  targetOrganism = BioLogica.breed(motherOrganism, fatherOrganism);
+  targetOrganism.species.makeAlive(targetOrganism);
+  var targetFilename = imageUrlBase + targetOrganism.getImageName();
+  $('#targetOrganismImage').attr('src', targetFilename);
+
+  updateAlleleDropdowns($('#mother'), motherOrganism);
+  updateAlleleDropdowns($('#father'), fatherOrganism);
+
+  //yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, breedingGenes, targetOrganism.getAlleleString());
+  //yourOrganismAlleles = yourInitialAlleles;
+  //updateAlleleDropdowns(yourOrganismAlleles);
+}
+
+function getBreedingChallengeId() {
+  var challengeId = $('#breedingChallengeIdInput').val();
+  if (!challengeId) {
+    challengeId = DefaultBreedingChallengeIdInput;
+    $('#breedingChallengeIdInput').val(challengeId);
+  }
+
+  return challengeId;
 }
 
 $(".dropdown-menu li a").click(function () {
@@ -177,6 +226,15 @@ function onAlleleChanged(geneName, allele) {
     context);
 }
 
+function updateAllelesFromDropdowns(organismDiv, organism) {
+  organismDiv.find('button.allele-selection').each(function (i, dropdown) {
+    var selectedAllele = $(dropdown).attr('selected-value');
+    var gene = $(dropdown).attr('gene');
+    console.info("alleles: {0} => {1}", gene, selectedAllele);
+    //yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
+  });
+}
+
 function selectDropdownItem(dropdownToggle, selectedItem) {
   var selectedText = selectedItem.text();
   var selectedValue = selectedItem.attr('selected-value');
@@ -185,35 +243,9 @@ function selectDropdownItem(dropdownToggle, selectedItem) {
   dropdownToggle.attr('selected-value', selectedValue);
 }
 
-function updateAllelesFromDropdowns() {
-  $('button.allele-selection').each(function (i, dropdown) {
-    var selectedAllele = $(dropdown).attr('selected-value');
-    var gene = $(dropdown).attr('gene');
-
-    yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
-  });
-}
-
-function updateSexFromDropdown() {
-  $('button.sex-selection').each(function (i, dropdown) {
-    var value = $(dropdown).attr('selected-value');
-    yourOrganismSex = (value ? Number(value) : 0);
-  });
-}
-
-function updateSexDropdown(sex) {
-  $('button.sex-selection').each(function (i, dropdown) {
-    var item = getDropdownItem($(this), dropdown, sex);
-    if (item == null) {
-      item = getRandomDropdownItem($(this), dropdown);
-    }
-    selectDropdownItem($(dropdown), $(item));
-  });
-}
-
-function updateAlleleDropdowns(alleles) {
-  $('button.allele-selection').each(function (i, dropdown) {
-    var item = getDropdownItem($(this), dropdown, alleles);
+function updateAlleleDropdowns(organismDiv, organism) {
+  organismDiv.find('button.allele-selection').each(function (i, dropdown) {
+    var item = getDropdownItem($(this), dropdown, organism.getAlleleString());
     if (item == null) {
       item = getRandomDropdownItem($(this), dropdown);
     }
