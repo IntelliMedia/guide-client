@@ -1,6 +1,8 @@
 const DefaultEggDropChallengeIdInput = "eggDrop-wings";
 
 var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var targetSpecies =BioLogica.Species.Drake;
+
 var targetOrganism = null;
 var basketGeneIndex = 0;
 

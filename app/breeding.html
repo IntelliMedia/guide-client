@@ -8,8 +8,8 @@
 <!-- Genetics Controls -->
 <div class="row">
 	<div class="col-sm-4" id="mother">
-		<h3 class="text-center" id="motherOrganismHeader">Mother</h3>
-		<img class="img-responsive center-block" src="images/question_mark.png" id="motherOrganismImage" />
+		<h3 class="text-center">Mother</h3>
+		<img class="img-responsive center-block" src="images/question_mark.png" id="motherImage" />
 		<h4 class="text-center">Chromosome Control</h4>
 		<div class="col-sm-6 left-chromosomes">
 		</div>
@@ -17,12 +17,12 @@
 		</div>
 	</div>
 	<div class="col-sm-4" id="target">
-		<h3 class="text-center" id="targetOrganismHeader">Target</h3>
-		<img class="img-responsive center-block" src="images/question_mark.png" id="targetOrganismImage" />
+		<h3 class="text-center">Target</h3>
+		<img class="img-responsive center-block" src="images/question_mark.png" id="targetImage" />
 	</div>
 	<div class="col-sm-4" id="father">
-		<h3 class="text-center" id="fatherOrganismHeader">Father</h3>
-		<img class="img-responsive center-block" src="images/question_mark.png" id="fatherOrganismImage" />
+		<h3 class="text-center">Father</h3>
+		<img class="img-responsive center-block" src="images/question_mark.png" id="fatherImage" />
 		<h4 class="text-center">Chromosome Control</h4>
 		<div class="col-sm-6 left-chromosomes">
 		</div>
@@ -38,7 +38,9 @@
 </div>
 
 <button class="btn btn-lg btn-primary top10" id="breedButton">Breed</button>
-<button class="btn btn-lg top10 randomizeButton">Randomize</button>
+<button class="btn btn-lg top10 randomize-button" target="mother">Randomize Mother</button>
+<button class="btn btn-lg top10 randomize-button" target="father">Randomize Father</button>
+<button class="btn btn-lg top10" id="newTrialButton">New Trial</button>
 
 <!-- build:js scripts/main.js -->
 <script src="scripts/breeding.js"></script>

@@ -1,6 +1,8 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
 var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var targetSpecies =BioLogica.Species.Drake;
+
 var minRandomAlleles = 4;
 var maxRandomAlleles = 10;
 

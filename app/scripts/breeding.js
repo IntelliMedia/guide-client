@@ -1,18 +1,16 @@
-var DefaultBreedingChallengeIdInput = "foo-bar";
+var DefaultBreedingChallengeIdInput = "clutch-5drakes-starterTraits";
 
-var breedingGenes = ["metallic", "wings", "forelimbs", "armor"];
+var breedingGenes = ["metallic", "wings", "horns", "color", "armor"];
+var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 
-var motherOrganism = null;
-var fatherOrganism = null;
-var targetOrganism = null;
+var organismsByRole = {
+  mother: null,
+  father: null,
+  target: null
+}
 
 var clutchOrganisms = [];
-
-
-var yourInitialAlleles = null;
-var yourOrganismAlleles = null;
-var yourOrganismSex = null;
 
 initializeUI(breedingGenes, targetSpecies);
 
@@ -21,30 +19,29 @@ function initializeUI(genes, species) {
   console.info("Initialize Breeding challenge");
 
   $('#breedButton').on("click", breed);
-  $('.randomizeButton').each(function () {
-    $(this).on("click", randomize);
+  $('#newTrialButton').on("click", newTrial);
+  $(".randomize-button").click(function () {
+    randomize($(this).attr("target"));
   });
 
-  $('#motherOrganismHeader').text('Mother ' + targetSpecies.name);
-  $('#targetOrganismHeader').text('Target ' + targetSpecies.name);
-  $('#fatherOrganismHeader').text('Father ' + targetSpecies.name);
+  createAlleleDropdowns("mother", genes, species);
+  createAlleleDropdowns("father", genes, species);
 
-  createAlleleDropdowns($('#mother'), genes, species);
-  createAlleleDropdowns($('#father'), genes, species);
-
-  randomize();
+  newTrial();
 
   userNavigatedChallenge(getBreedingChallengeId());
 }
 
-function createAlleleDropdowns(organismDiv, genes, species) {
+function createAlleleDropdowns(name, genes, species) {
+
+  var organismDiv = $("#" + name);
 
   var openDropdownHtml =
     `<div class="btn-groupId">
       <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" gene="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
-  var itemHtml = `<li><a gene="{1}" selected-value="{2}">{0}</a></li>`;
+  var itemHtml = `<li><a role="{3}" gene="{1}" selected-value="{2}">{0}</a></li>`;
 
   var closeDropdownHtml =
     `   </ul>
@@ -70,8 +67,8 @@ function createAlleleDropdowns(organismDiv, genes, species) {
     for (var j = 0; j < allelesLength; ++j) {
       var allele = geneInfo.alleles[j];
       var alleleName = species.alleleLabelMap[allele];
-      leftDropdowns += sprintf(itemHtml, alleleName, genes[i], 'a:' + allele);
-      rightDropdowns += sprintf(itemHtml, alleleName, genes[i], 'b:' + allele);
+      leftDropdowns += sprintf(itemHtml, alleleName, genes[i], 'a:' + allele, name);
+      rightDropdowns += sprintf(itemHtml, alleleName, genes[i], 'b:' + allele, name);
     }
 
     leftDropdowns += closeDropdownHtml;
@@ -109,7 +106,7 @@ function submitOffspring(offspringIndex) {
 
   console.info("Submit " + submittedOrganism.getImageName());  
 
-  var correct = (submittedOrganism.getImageName() == targetOrganism.getImageName());
+  var correct = (submittedOrganism.getImageName() == organismsByRole.target.getImageName());
 
   if (correct) {
     showPopup(
@@ -127,12 +124,12 @@ function submitOffspring(offspringIndex) {
   var context = {
     "challengeId": getBreedingChallengeId(),
     "challengeCriteria": {
-      "offspringSex": sexToString(targetOrganism.sex),
-      "offspringPhenotype": targetOrganism.phenotype.characteristics
+      "offspringSex": sexToString(organismsByRole.target.sex),
+      "offspringPhenotype": organismsByRole.target.phenotype.characteristics
     },
     "userSelections": {
-      "motherAlleles": motherOrganism.getAlleleString(),
-      "fatherAlleles": fatherOrganism.getAlleleString(),
+      "motherAlleles": organismsByRole.mother.getAlleleString(),
+      "fatherAlleles": organismsByRole.father.getAlleleString(),
       "offspringAlleles": submittedOrganism.getAlleleString(),
       "offspringSex": sexToString(submittedOrganism.sex)
     },
@@ -149,9 +146,9 @@ function submitOffspring(offspringIndex) {
 function breed() {
     clutchOrganisms = [];
     for(var i = 0; i < 8; ++i) {
-      var organism = BioLogica.breed(motherOrganism, fatherOrganism);
-      organism.species.makeAlive(organism);
-      clutchOrganisms.push(organism);
+      var offspring = BioLogica.breed(organismsByRole.mother, organismsByRole.father);
+      offspring.species.makeAlive(offspring);
+      clutchOrganisms.push(offspring);
     }
 
     createClutchButtons(clutchOrganisms);
@@ -161,29 +158,44 @@ function sexToString(sex) {
   return (sex == 0 ? "Male" : "Female");
 }
 
-function randomize() {
+function newTrial() {
 
-  motherOrganism = new BioLogica.Organism(targetSpecies, "", Number(0));
-  motherOrganism.species.makeAlive(motherOrganism);
-  var motherFilename = imageUrlBase + motherOrganism.getImageName();
-  $('#motherOrganismImage').attr('src', motherFilename);
+  organismsByRole.mother = new BioLogica.Organism(targetSpecies, "", Number(0));
+  organismsByRole.mother.species.makeAlive(organismsByRole.mother);
+  updateOrganismImage("mother");
+  updateAlleleDropdowns($('#mother'), organismsByRole.mother);
 
-  fatherOrganism = new BioLogica.Organism(targetSpecies, "", Number(1));
-  fatherOrganism.species.makeAlive(fatherOrganism);
-  var fatherFilename = imageUrlBase + fatherOrganism.getImageName();
-  $('#fatherOrganismImage').attr('src', fatherFilename);
+  organismsByRole.father = new BioLogica.Organism(targetSpecies, "", Number(1));
+  organismsByRole.father.species.makeAlive(organismsByRole.father);
+  updateOrganismImage("father");
+  updateAlleleDropdowns($('#father'), organismsByRole.father);
 
-  targetOrganism = BioLogica.breed(motherOrganism, fatherOrganism);
-  targetOrganism.species.makeAlive(targetOrganism);
-  var targetFilename = imageUrlBase + targetOrganism.getImageName();
-  $('#targetOrganismImage').attr('src', targetFilename);
+  organismsByRole.target = BioLogica.breed(organismsByRole.mother, organismsByRole.father);
+  organismsByRole.target.species.makeAlive(organismsByRole.target);
+  updateOrganismImage("target");
+}
 
-  updateAlleleDropdowns($('#mother'), motherOrganism);
-  updateAlleleDropdowns($('#father'), fatherOrganism);
+function randomize(target) {
 
-  //yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, breedingGenes, targetOrganism.getAlleleString());
-  //yourOrganismAlleles = yourInitialAlleles;
-  //updateAlleleDropdowns(yourOrganismAlleles);
+  console.info("Randomize: " + target);
+  if (target == "mother") {
+    organismsByRole.mother = new BioLogica.Organism(targetSpecies, "", Number(0));
+    organismsByRole.mother.species.makeAlive(organismsByRole.mother);
+    updateOrganismImage("mother");
+    updateAlleleDropdowns($('#mother'), organismsByRole.mother);
+  } else if (target == "father") {
+    organismsByRole.father = new BioLogica.Organism(targetSpecies, "", Number(1));
+    organismsByRole.father.species.makeAlive(organismsByRole.father);
+    updateOrganismImage("father");
+    updateAlleleDropdowns($('#father'), organismsByRole.father);
+  } else {
+    console.error("Unknown randomize target: " + target);
+  }
+}
+
+function updateOrganismImage(name) {
+  var filename = imageUrlBase + organismsByRole[name].getImageName();
+  $("#"+name).find("img").attr('src', filename);
 }
 
 function getBreedingChallengeId() {
@@ -203,20 +215,26 @@ $(".dropdown-menu li a").click(function () {
 
   if (dropdownGroup.find(".allele-selection").length > 0
     && selectedItem.attr('selected-value') != dropdownToggle.attr('selected-value')) {
-    onAlleleChanged(selectedItem.attr('gene'), selectedItem.attr('selected-value'));
+    onAlleleChanged(
+      selectedItem.attr('role'), 
+      selectedItem.attr('gene'), 
+      selectedItem.attr('selected-value'));
   }
   selectDropdownItem(dropdownToggle, selectedItem);
 });
 
-function onAlleleChanged(geneName, allele) {
-  console.info("Selected allele: " + geneName + "  allele: " + allele);
+function onAlleleChanged(role, gene, newAllele) {
+  console.info("Selected %s's %s -> %s", role, gene, newAllele);
 
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
-  yourOrganism.species.makeAlive(yourOrganism);
+  var alleles = organismsByRole[role].getAlleleString();
+  alleles = BiologicaX.replaceAllele(organismsByRole[role].species, gene, alleles, newAllele);
+  organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
+  organismsByRole[role].species.makeAlive(organismsByRole[role]);
+  updateOrganismImage(role);
 
   var context = {
-    "gene": geneName,
-    "allele": allele
+    "gene": gene,
+    "allele": newAllele
   };
 
   SendGuideEvent(

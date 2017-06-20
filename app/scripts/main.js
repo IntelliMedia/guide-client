@@ -13,7 +13,7 @@ const GuideLocalServer = 'ws://localhost:3000';
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'images/question_mark.png';
 
-const DefaultGroupId = "Slice1-May8";
+const DefaultGroupId = "Slice2-Next";
 
 const DefaultClassId = 123456789;
 
