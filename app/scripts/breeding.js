@@ -1,6 +1,6 @@
 var DefaultBreedingChallengeIdInput = "clutch-5drakes-starterTraits";
 
-var breedingGenes = ["metallic", "wings", "horns", "color", "armor"];
+var breedingGenes = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "armor"];
 var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 
@@ -124,8 +124,8 @@ function submitOffspring(offspringIndex) {
   var context = {
     "challengeId": getBreedingChallengeId(),
     "challengeCriteria": {
-      "offspringSex": sexToString(organismsByRole.target.sex),
-      "offspringPhenotype": organismsByRole.target.phenotype.characteristics
+      "sex": sexToString(organismsByRole.target.sex),
+      "phenotype": organismsByRole.target.phenotype.characteristics
     },
     "userSelections": {
       "motherAlleles": organismsByRole.mother.getAlleleString(),
@@ -146,7 +146,7 @@ function submitOffspring(offspringIndex) {
 function breed() {
     clutchOrganisms = [];
     for(var i = 0; i < 8; ++i) {
-      var offspring = BioLogica.breed(organismsByRole.mother, organismsByRole.father);
+      var offspring = BioLogica.breed(organismsByRole.mother, organismsByRole.father, true);
       offspring.species.makeAlive(offspring);
       clutchOrganisms.push(offspring);
     }
@@ -160,17 +160,17 @@ function sexToString(sex) {
 
 function newTrial() {
 
-  organismsByRole.mother = new BioLogica.Organism(targetSpecies, "", Number(0));
+  organismsByRole.mother = new BioLogica.Organism(targetSpecies, "", BioLogica.FEMALE);
   organismsByRole.mother.species.makeAlive(organismsByRole.mother);
   updateOrganismImage("mother");
   updateAlleleDropdowns($('#mother'), organismsByRole.mother);
 
-  organismsByRole.father = new BioLogica.Organism(targetSpecies, "", Number(1));
+  organismsByRole.father = new BioLogica.Organism(targetSpecies, "", BioLogica.MALE);
   organismsByRole.father.species.makeAlive(organismsByRole.father);
   updateOrganismImage("father");
   updateAlleleDropdowns($('#father'), organismsByRole.father);
 
-  organismsByRole.target = BioLogica.breed(organismsByRole.mother, organismsByRole.father);
+  organismsByRole.target = BioLogica.breed(organismsByRole.mother, organismsByRole.father, true);
   organismsByRole.target.species.makeAlive(organismsByRole.target);
   updateOrganismImage("target");
 }
