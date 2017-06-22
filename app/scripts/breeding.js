@@ -1,4 +1,4 @@
-var DefaultBreedingChallengeIdInput = "clutch-5drakes-starterTraits";
+var DefaultBreedingChallengeIdInput = "clutch-5drakes-intermediateTraits";
 
 var breedingGenes = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "armor"];
 var targetSpecies = BioLogica.Species.Drake;
@@ -127,6 +127,7 @@ function submitOffspring(offspringIndex) {
       "sex": sexToString(organismsByRole.target.sex),
       "phenotype": organismsByRole.target.phenotype.characteristics
     },
+    "species": submittedOrganism.species.name,
     "userSelections": {
       "motherAlleles": organismsByRole.mother.getAlleleString(),
       "fatherAlleles": organismsByRole.father.getAlleleString(),
