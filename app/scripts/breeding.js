@@ -1,6 +1,6 @@
 var DefaultBreedingChallengeIdInput = "clutch-5drakes-intermediateTraits";
 
-var breedingGenes = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "armor"];
+var breedingGenes = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "gray", "armor"];
 var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 

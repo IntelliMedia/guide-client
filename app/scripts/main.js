@@ -116,6 +116,8 @@ function initializeGuideConnection() {
 
   socket.on(GuideProtocol.TutorDialog.Channel, (data) => {
     var tutorDialog = GuideProtocol.TutorDialog.fromJson(data);
+    console.info("ITS TutorDialog:", tutorDialog);
+
     var message = tutorDialog.message.asString();
     tutorFeedbackQueue.push(message);
     displayTutorFeedback();
@@ -123,6 +125,8 @@ function initializeGuideConnection() {
 
   socket.on(GuideProtocol.Alert.Channel, (data) => {
     var alert = GuideProtocol.Alert.fromJson(data);
+    console.info("ITS Alert:", alert);
+    
     switch (alert.type) {
       case GuideProtocol.Alert.Error:
         showPopup(
@@ -152,6 +156,7 @@ function SendGuideEvent(actor, action, target, context) {
     target,
     context);
 
+  console.info("Send to ITS:", event);
   socket.emit(GuideProtocol.Event.Channel, event.toJson());
 
   return event;
