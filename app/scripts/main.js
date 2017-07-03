@@ -125,23 +125,38 @@ function initializeGuideConnection() {
 
   socket.on(GuideProtocol.Alert.Channel, (data) => {
     var alert = GuideProtocol.Alert.fromJson(data);
-    console.info("ITS Alert:", alert);
     
     switch (alert.type) {
       case GuideProtocol.Alert.Error:
+        console.error("ITS Error: " + alert.message);
         showPopup(
-          'danger',
+          'error',
           'Server',
           alert.message
         );
         break;
 
-      default:
+      case GuideProtocol.Alert.Warning:
+        console.warn("ITS Warning: " + alert.message);
+        showPopup(
+          'warning',
+          'Server',
+          alert.message
+        );
+        break;
+
+      case GuideProtocol.Alert.Info:
+        console.info("ITS Info: " + alert.message);
         showPopup(
           'info',
           'Server',
           alert.message
         );
+        break;
+
+      //case GuideProtocol.Alert.Debug:
+      default:
+        console.log("ITS Debug: " + alert.message);
     }
   });
 }

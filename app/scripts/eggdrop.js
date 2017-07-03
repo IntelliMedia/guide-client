@@ -44,7 +44,7 @@ function submitEgg(sex, gene, characteristic) {
 
     } else {
         showPopup(
-            'danger',
+            'error',
             "That's not the drake!",
             "The basket you selected doesn't match the egg. Please try again.");
     }

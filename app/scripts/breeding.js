@@ -116,7 +116,7 @@ function submitOffspring(offspringIndex) {
 
   } else {
     showPopup(
-      'danger',
+      'error',
       "That's not the drake!",
       "The drake you have created doesn't match the target drake. Please try again.");
   }
