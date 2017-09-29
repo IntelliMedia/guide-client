@@ -13,7 +13,8 @@ const GuideLocalServer = 'ws://localhost:3000';
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'images/question_mark.png';
 
-const DefaultGroupId = "Slice2-Next";
+const DefaultGroupId = "Slice-Test";
+const DefaultItsDBEndpoint = "1/userState/https%3A%2F%2Flearn%2Econcord%2Eorg%2Fapi%2Fv1%2Fclasses%2F325/https%3A%2F%2Flearn%2Econcord%2Eorg%2F71692/itsData";
 
 const DefaultClassId = 123456789;
 
@@ -272,7 +273,8 @@ function startSession() {
 
   var context = {
     "classId": getClassId(),
-    "groupId": getGroupId()
+    "groupId": getGroupId(),
+    "itsDBEndpoint": getItsDBEndpoint()
   };
 
   SendGuideEvent(
@@ -323,6 +325,16 @@ function getGroupId() {
   }
 
   return groupId;
+}
+
+function getItsDBEndpoint() {
+  var itsDBEndpoint = $('#itsDBEndpointInput').val();
+  if (!itsDBEndpoint) {
+    itsDBEndpoint = DefaultItsDBEndpoint;
+    $('#itsDBEndpointInput').val(itsDBEndpoint);
+  }
+
+  return itsDBEndpoint;
 }
 
 function updateConnectionStatus(connected, serverUrl) {
