@@ -151,8 +151,14 @@ function updateEggDropControls(genes, organism) {
     // Update basket buttons
     $("#egg-drop-buttons .btn").each(function (i, dropdown) {
         var sex = i % 2 == 0 ? "Male" : "Female";
-        var alleleIndex = i < 2 ? 0 : 1;
-        var characterisitic = species.alleleLabelMap[basketGeneInfo.alleles[alleleIndex]];
+        var traitIndex = i < 2 ? 0 : 1;
+        var traits = [basketGeneInfo.alleles[0], basketGeneInfo.alleles[1]];
+        if (basketGene.includes("metallic")) {
+            traits = ["Metallic", "Nonmetallic"];
+        } else if (species.traitRules[basketGene]) {
+            traits = Object.keys(species.traitRules[basketGene]);
+        }
+        var characterisitic = traits[traitIndex];
 
         $(this).attr("sex", sex);
         $(this).attr("characteristic", characterisitic);
@@ -171,3 +177,7 @@ $("#egg-drop-buttons .btn").click(function () {
 
     submitEgg(sex, gene, characteristic);
 });
+
+function sexToString(sex) {
+    return (sex == 0 ? "Male" : "Female");
+  }
