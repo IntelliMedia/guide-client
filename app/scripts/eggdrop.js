@@ -62,6 +62,8 @@ function submitEgg(sex, gene, characteristic) {
             "sex": sex,
             "phenotype": selectedPhenotype
         },
+        "classId": getClassId(),
+        "groupId": getGroupId(),        
         "correct": correct,
         "incrementMoves": true
     };

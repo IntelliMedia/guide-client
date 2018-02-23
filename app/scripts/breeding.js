@@ -134,6 +134,8 @@ function submitOffspring(offspringIndex) {
       "offspringAlleles": submittedOrganism.getAlleleString(),
       "offspringSex": sexToString(submittedOrganism.sex)
     },
+    "classId": getClassId(),
+    "groupId": getGroupId(),
     "correct": correct
   };
 

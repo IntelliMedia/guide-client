@@ -73,6 +73,8 @@ function submitOrganism() {
       "alleles": yourOrganism.getAlleleString(),
       "sex": sexToString(yourOrganism.sex)
     },
+    "classId": getClassId(),
+    "groupId": getGroupId(),    
     "correct": correct,
     "incrementMoves": true
   };
