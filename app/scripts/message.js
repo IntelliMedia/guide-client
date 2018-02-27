@@ -17,6 +17,9 @@ function sendMessage() {
     var msgText = $('#message-area').val();
     var msg = JSON.parse(msgText);
 
+    msg.context.classId = getClassId();
+    msg.context.groupId = getGroupId();       
+
     SendGuideEvent(
         msg.actor,
         msg.action,
