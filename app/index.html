@@ -175,6 +175,9 @@
 						<li class="nav-item">
 							<a class="nav-link" data-toggle="tab" id="eggDropLink" href="#eggdropTab" role="tab" aria-controls="eggdrop">Egg Drop</a>
 						</li>
+						<li class="nav-item">
+							<a class="nav-link" data-toggle="tab" id="messageLink" href="#messageTab" role="tab" aria-controls="message">Message</a>
+						</li>						
 					</ul>
 				</div>
 				<script>
@@ -194,6 +197,10 @@
 						$('a#eggDropLink').click(function () {
 							$("#eggdropTab").load("eggdrop.html");
 						});
+
+						$('a#messageLink').click(function () {
+							$("#messageTab").load("message.html");
+						});						
 					})
 				</script>
 
@@ -214,6 +221,11 @@
 					<div class="tab-pane" style="margin:20px" id="eggdropTab" role="tabpanel">
 						<h3>egg drop placeholder</h3>
 					</div>
+
+					<!-- Message -->
+					<div class="tab-pane" style="margin:20px" id="messageTab" role="tabpanel">
+						<h3>message placeholder</h3>
+					</div>					
 				</div>
 			</div>
 		</div>

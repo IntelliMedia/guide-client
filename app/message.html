@@ -1,0 +1,73 @@
+<!-- Message Info -->
+<h3>Protocol Message</h3>
+<div class="row">
+    <textarea id="message-area" rows="10" cols="100">
+            {
+                "username": "https://learn.concord.org/users/68600-72449389",
+                "classInfo": "https://learn.concord.org/api/v1/classes/3374",
+                "studentId": "68600",
+                "externalId": 159474,
+                "session": "72449389-a7c5-4981-bfd4-dcab24f1b9f6",
+                "time": 1519680996411,
+                "sequence": 4,
+                "actor": "USER",
+                "action": "SUBMITTED",
+                "target": "PARENTS",
+                "context": {
+                  "species": "Drake",
+                  "challengeCriteria": [
+                    {
+                      "sex": "male",
+                      "phenotype": {
+                        "armor": "Three armor",
+                        "tail": "Long tail",
+                        "forelimbs": "Forelimbs",
+                        "hindlimbs": "Hindlimbs",
+                        "horns": "Hornless",
+                        "nose spike": "Nose spike",
+                        "wings": "No wings",
+                        "color": "Steel",
+                        "health": "Healthy",
+                        "liveliness": "Alive"
+                      }
+                    },
+                    {
+                      "sex": "female",
+                      "phenotype": {
+                        "armor": "Three armor",
+                        "tail": "Long tail",
+                        "forelimbs": "No forelimbs",
+                        "hindlimbs": "Hindlimbs",
+                        "horns": "Hornless",
+                        "nose spike": "Nose spike",
+                        "wings": "No wings",
+                        "color": "Charcoal",
+                        "health": "Healthy",
+                        "liveliness": "Alive"
+                      }
+                    }
+                  ],
+                  "userSelections": {
+                    "motherAlleles": "a:T,b:T,a:M,b:M,a:W,b:W,a:H,b:h,a:C,b:c,a:b,b:B,a:Fl,b:fl,a:Hl,b:hl,a:A1,b:a,a:D,b:D,a:Bog,b:Bog,a:Rh,b:Rh",
+                    "fatherAlleles": "a:T,b:T,a:M,b:m,a:w,b:w,a:H,b:h,a:C,b:c,a:b,b:B,a:Fl,b:fl,a:Hl,b:hl,a:A1,b:a,a:D,a:Bog,a:Rh"
+                  },
+                  "correct": false,
+                  "incrementMoves": true,
+                  "routeSpec": {
+                    "level": 3,
+                    "mission": 2,
+                    "challenge": 0
+                  },
+                  "groupId": "Slice2-June26",
+                  "challengeId": "siblings-1",
+                  "classId": "https://learn.concord.org/api/v1/classes/3374"
+                }
+              }        
+     </textarea> 
+</div>
+
+<button class="btn btn-lg btn-success top10 sendMessageButton">Send</button>
+
+<!-- build:js scripts/main.js -->
+<script src="scripts/message.js"></script>
+<!-- endbuild -->
