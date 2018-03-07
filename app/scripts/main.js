@@ -6,7 +6,8 @@
  * Constants
  */
 
-const guideProtocol = 'guide-protocol-v3';
+const ClientVersion = '3.0.0';
+const guideProtocol = 'guide-protocol-v4';
 const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
 const GuideLocalServer = 'ws://localhost:3000';
 
@@ -184,6 +185,8 @@ function SendGuideEvent(actor, action, target, context) {
 
 function initializeUI() {
 
+  var title = $('#title').text();
+  $('#title').text(title + ' ' + ClientVersion);
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);
 
