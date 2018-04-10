@@ -1,14 +1,14 @@
 const DefaultEggDropChallengeIdInput = "eggDrop-wings";
 
-var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var editableCharacteristics = ["metallic", "wings", "forelimbs", "armor"];
 var targetSpecies =BioLogica.Species.Drake;
 
 var targetOrganism = null;
 var basketGeneIndex = 0;
 
-initialize(targetGenes, targetSpecies);
+initialize(editableCharacteristics, targetSpecies);
 
-function initialize(targetGenes, targetSpecies) {
+function initialize(editableCharacteristics, targetSpecies) {
     console.info("Initialize Egg Drop challenege");
 
     $('.randomOrganismButton').each(function () {
@@ -62,6 +62,7 @@ function submitEgg(sex, gene, characteristic) {
             "sex": sex,
             "phenotype": selectedPhenotype
         },
+        "editableAttributes": characteristic,
         "classId": getClassId(),
         "groupId": getGroupId(),        
         "correct": correct,
@@ -81,7 +82,7 @@ function randomOrganism() {
     targetOrganism = new BioLogica.Organism(targetSpecies, "", Number(targetOrganismSex));
     targetOrganism.species.makeAlive(targetOrganism);
 
-    updateEggDropControls(targetGenes, targetOrganism);
+    updateEggDropControls(editableCharacteristics, targetOrganism);
 }
 
 function getStudentId() {

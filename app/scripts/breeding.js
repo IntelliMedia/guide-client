@@ -1,6 +1,6 @@
 var DefaultBreedingChallengeIdInput = "clutch-5drakes-intermediateTraits";
 
-var breedingGenes = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "gray", "armor"];
+var editableCharacteristics = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "gray", "armor"];
 var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 
@@ -12,7 +12,7 @@ var organismsByRole = {
 
 var clutchOrganisms = [];
 
-initializeUI(breedingGenes, targetSpecies);
+initializeUI(editableCharacteristics, targetSpecies);
 
 function initializeUI(genes, species) {
 
@@ -121,6 +121,8 @@ function submitOffspring(offspringIndex) {
       "The drake you have created doesn't match the target drake. Please try again.");
   }
 
+  var editableAttributes = ["sex"].concat(editableCharacteristics);
+
   var context = {
     "challengeId": getBreedingChallengeId(),
     "challengeCriteria": {
@@ -134,6 +136,7 @@ function submitOffspring(offspringIndex) {
       "offspringAlleles": submittedOrganism.getAlleleString(),
       "offspringSex": sexToString(submittedOrganism.sex)
     },
+    "editableAttributes": editableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),
     "correct": correct

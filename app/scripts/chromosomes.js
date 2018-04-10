@@ -1,6 +1,6 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
-var targetGenes = ["metallic", "wings", "forelimbs", "armor"];
+var editableCharacteristics = ["metallic", "wings", "forelimbs", "armor"];
 var targetSpecies =BioLogica.Species.Drake;
 
 var minRandomAlleles = 4;
@@ -11,7 +11,7 @@ var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
 
-initializeUI(targetGenes, targetSpecies);
+initializeUI(editableCharacteristics, targetSpecies);
 
 function initializeUI(genes, species) {
 
@@ -63,6 +63,8 @@ function submitOrganism() {
       "The drake you have created doesn't match the target drake. Please try again.");
   }
 
+  var editableAttributes = ["sex"].concat(editableCharacteristics);
+
   var context = {
     "challengeId": getChromosomeChallengeId(),
     "challengeCriteria": {
@@ -73,6 +75,7 @@ function submitOrganism() {
       "alleles": yourOrganism.getAlleleString(),
       "sex": sexToString(yourOrganism.sex)
     },
+    "editableAttributes": editableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),    
     "correct": correct,
@@ -96,7 +99,7 @@ function randomOrganism() {
   targetOrganism = new BioLogica.Organism(targetSpecies, "", Number(targetOrganismSex));
   targetOrganism.species.makeAlive(targetOrganism);
 
-  yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, targetGenes, targetOrganism.getAlleleString());
+  yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, editableCharacteristics, targetOrganism.getAlleleString());
   yourOrganismAlleles = yourInitialAlleles;
   updateAlleleDropdowns(yourOrganismAlleles);
   updateSexDropdown(targetOrganismSex == 0 ? "1" : "0");
