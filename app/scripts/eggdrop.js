@@ -4,7 +4,7 @@ var editableCharacteristics = ["metallic", "wings", "forelimbs", "armor"];
 var targetSpecies =BioLogica.Species.Drake;
 
 var targetOrganism = null;
-var basketGeneIndex = 0;
+var basketCharacteristicIndex = 0;
 
 initialize(editableCharacteristics, targetSpecies);
 
@@ -30,11 +30,11 @@ function getEggDropChallengeId() {
     return challengeId;
 }
 
-function submitEgg(sex, gene, characteristic) {
+function submitEgg(sex, characteristic, phenotype) {
 
     var organismSex = sexToString(targetOrganism.sex);
     var correct = (organismSex == sex
-        && BiologicaX.getCharacteristic(targetOrganism, gene) == characteristic);
+        && BiologicaX.getCharacteristic(targetOrganism, characteristic) == phenotype);
 
     if (correct) {
         showPopup(
@@ -50,7 +50,7 @@ function submitEgg(sex, gene, characteristic) {
     }
 
     var selectedPhenotype = {};
-    selectedPhenotype[gene] = characteristic;
+    selectedPhenotype[characteristic] = phenotype;
 
     var context = {
         "challengeId": getEggDropChallengeId(),
@@ -62,7 +62,7 @@ function submitEgg(sex, gene, characteristic) {
             "sex": sex,
             "phenotype": selectedPhenotype
         },
-        "editableAttributes": characteristic,
+        "selectableAttributes": [characteristic],
         "classId": getClassId(),
         "groupId": getGroupId(),        
         "correct": correct,
@@ -105,7 +105,7 @@ function getEggDropChallengeId() {
     return challengeId;
 }
 
-function updateEggDropControls(genes, organism) {
+function updateEggDropControls(characteristics, organism) {
 
     var species = organism.species;
     var alleles = organism.getAlleleString();
@@ -125,19 +125,19 @@ function updateEggDropControls(genes, organism) {
     leftDropdowns += openHtml;
     rightDropdowns += openHtml;
 
-    var genesLength = genes.length;
-    for (var i = 0; i < genesLength; i++) {
+    var characteristicsLength = characteristics.length;
+    for (var i = 0; i < characteristicsLength; i++) {
 
-        var geneInfo = species.geneList[genes[i]];
-        if (geneInfo == null || geneInfo.length == 0) {
-            console.warn("Unable to find alleles for " + genes[i]);
+        var characteristicInfo = species.geneList[characteristics[i]];
+        if (characteristicInfo == null || characteristicInfo.length == 0) {
+            console.warn("Unable to find alleles for " + characteristics[i]);
             continue;
         }
 
-        var leftAllele = BiologicaX.findAllele(species, alleles, "a", genes[i]).replace("a:", "");
+        var leftAllele = BiologicaX.findAllele(species, alleles, "a", characteristics[i]).replace("a:", "");
         leftDropdowns += sprintf(itemHtml, species.alleleLabelMap[leftAllele])
 
-        var rightAllele = BiologicaX.findAllele(species, alleles, "b", genes[i]).replace("b:", "");
+        var rightAllele = BiologicaX.findAllele(species, alleles, "b", characteristics[i]).replace("b:", "");
         rightDropdowns += sprintf(itemHtml, species.alleleLabelMap[rightAllele]);
     }
 
@@ -148,37 +148,37 @@ function updateEggDropControls(genes, organism) {
     $('#right-egg-chromosomes').html(rightDropdowns);
     $('#egg-sex').text(sex);
 
-    var basketGene = genes[(basketGeneIndex++ % genes.length)];
-    var basketGeneInfo = species.geneList[basketGene];
+    var basketCharacteristic = characteristics[(basketCharacteristicIndex++ % characteristics.length)];
+    var basketCharacteristicInfo = species.geneList[basketCharacteristic];
 
     // Update basket buttons
     $("#egg-drop-buttons .btn").each(function (i, dropdown) {
         var sex = i % 2 == 0 ? "Male" : "Female";
         var traitIndex = i < 2 ? 0 : 1;
-        var traits = [basketGeneInfo.alleles[0], basketGeneInfo.alleles[1]];
-        if (basketGene.includes("metallic")) {
+        var traits = [basketCharacteristicInfo.alleles[0], basketCharacteristicInfo.alleles[1]];
+        if (basketCharacteristic.includes("metallic")) {
             traits = ["Metallic", "Nonmetallic"];
-        } else if (species.traitRules[basketGene]) {
-            traits = Object.keys(species.traitRules[basketGene]);
+        } else if (species.traitRules[basketCharacteristic]) {
+            traits = Object.keys(species.traitRules[basketCharacteristic]);
         }
         var characterisitic = traits[traitIndex];
 
         $(this).attr("sex", sex);
-        $(this).attr("characteristic", characterisitic);
-        $(this).attr("gene", basketGene);
+        $(this).attr("phenotype", characterisitic);
+        $(this).attr("characteristic", basketCharacteristic);
         $(this).html(sex + " - " + characterisitic);
     });
 }
 
 $("#egg-drop-buttons .btn").click(function () {
     var sex = $(this).attr("sex");
-    var gene = $(this).attr("gene");
     var characteristic = $(this).attr("characteristic");
+    var phenotype = $(this).attr("phenotype");
 
     console.info("Basket button pressed: %s - %s",
-        sex, gene, characteristic);
+        sex, characteristic, phenotype);
 
-    submitEgg(sex, gene, characteristic);
+    submitEgg(sex, characteristic, phenotype);
 });
 
 function sexToString(sex) {

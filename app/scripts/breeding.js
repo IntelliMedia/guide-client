@@ -14,7 +14,7 @@ var clutchOrganisms = [];
 
 initializeUI(editableCharacteristics, targetSpecies);
 
-function initializeUI(genes, species) {
+function initializeUI(characteristics, species) {
 
   console.info("Initialize Breeding challenge");
 
@@ -24,24 +24,24 @@ function initializeUI(genes, species) {
     randomize($(this).attr("target"));
   });
 
-  createAlleleDropdowns("mother", genes, species);
-  createAlleleDropdowns("father", genes, species);
+  createAlleleDropdowns("mother", characteristics, species);
+  createAlleleDropdowns("father", characteristics, species);
 
   newTrial();
 
   userNavigatedChallenge(getBreedingChallengeId());
 }
 
-function createAlleleDropdowns(name, genes, species) {
+function createAlleleDropdowns(name, characteristics, species) {
 
   var organismDiv = $("#" + name);
 
   var openDropdownHtml =
     `<div class="btn-groupId">
-      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" gene="{0}">select <span class="caret"></span></button>
+      <button class="btn dropdown-toggle allele-selection" type="button" data-toggle="dropdown" selected-value="" characteristic="{0}">select <span class="caret"></span></button>
         <ul class="dropdown-menu">`;
 
-  var itemHtml = `<li><a role="{3}" gene="{1}" selected-value="{2}">{0}</a></li>`;
+  var itemHtml = `<li><a role="{3}" characteristic="{1}" selected-value="{2}">{0}</a></li>`;
 
   var closeDropdownHtml =
     `   </ul>
@@ -51,24 +51,24 @@ function createAlleleDropdowns(name, genes, species) {
   var leftDropdowns = "";
   var rightDropdowns = "";
 
-  var genesLength = genes.length;
-  for (var i = 0; i < genesLength; i++) {
+  var characteristicsLength = characteristics.length;
+  for (var i = 0; i < characteristicsLength; i++) {
 
-    var geneInfo = species.geneList[genes[i]];
-    if (geneInfo == null || geneInfo.length == 0) {
-      console.warn("Unable to find alleles for " + genes[i]);
+    var characteristicInfo = species.geneList[characteristics[i]];
+    if (characteristicInfo == null || characteristicInfo.length == 0) {
+      console.warn("Unable to find alleles for " + characteristics[i]);
       continue;
     }
 
-    leftDropdowns += sprintf(openDropdownHtml, genes[i]);
-    rightDropdowns += sprintf(openDropdownHtml, genes[i]);
+    leftDropdowns += sprintf(openDropdownHtml, characteristics[i]);
+    rightDropdowns += sprintf(openDropdownHtml, characteristics[i]);
 
-    var allelesLength = geneInfo.alleles.length;
+    var allelesLength = characteristicInfo.alleles.length;
     for (var j = 0; j < allelesLength; ++j) {
-      var allele = geneInfo.alleles[j];
+      var allele = characteristicInfo.alleles[j];
       var alleleName = species.alleleLabelMap[allele];
-      leftDropdowns += sprintf(itemHtml, alleleName, genes[i], 'a:' + allele, name);
-      rightDropdowns += sprintf(itemHtml, alleleName, genes[i], 'b:' + allele, name);
+      leftDropdowns += sprintf(itemHtml, alleleName, characteristics[i], 'a:' + allele, name);
+      rightDropdowns += sprintf(itemHtml, alleleName, characteristics[i], 'b:' + allele, name);
     }
 
     leftDropdowns += closeDropdownHtml;
@@ -121,7 +121,7 @@ function submitOffspring(offspringIndex) {
       "The drake you have created doesn't match the target drake. Please try again.");
   }
 
-  var editableAttributes = ["sex"].concat(editableCharacteristics);
+  var selectableAttributes = ["sex"].concat(editableCharacteristics);
 
   var context = {
     "challengeId": getBreedingChallengeId(),
@@ -136,7 +136,7 @@ function submitOffspring(offspringIndex) {
       "offspringAlleles": submittedOrganism.getAlleleString(),
       "offspringSex": sexToString(submittedOrganism.sex)
     },
-    "editableAttributes": editableAttributes,
+    "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),
     "correct": correct
@@ -223,23 +223,23 @@ $(".dropdown-menu li a").click(function () {
     && selectedItem.attr('selected-value') != dropdownToggle.attr('selected-value')) {
     onAlleleChanged(
       selectedItem.attr('role'), 
-      selectedItem.attr('gene'), 
+      selectedItem.attr('characteristic'), 
       selectedItem.attr('selected-value'));
   }
   selectDropdownItem(dropdownToggle, selectedItem);
 });
 
-function onAlleleChanged(role, gene, newAllele) {
-  console.info("Selected %s's %s -> %s", role, gene, newAllele);
+function onAlleleChanged(role, characteristic, newAllele) {
+  console.info("Selected %s's %s -> %s", role, characteristic, newAllele);
 
   var alleles = organismsByRole[role].getAlleleString();
-  alleles = BiologicaX.replaceAllele(organismsByRole[role].species, gene, alleles, newAllele);
+  alleles = BiologicaX.replaceAllele(organismsByRole[role].species, characteristic, alleles, newAllele);
   organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
   organismsByRole[role].species.makeAlive(organismsByRole[role]);
   updateOrganismImage(role);
 
   var context = {
-    "gene": gene,
+    "characteristic": characteristic,
     "allele": newAllele
   };
 
@@ -253,9 +253,9 @@ function onAlleleChanged(role, gene, newAllele) {
 function updateAllelesFromDropdowns(organismDiv, organism) {
   organismDiv.find('button.allele-selection').each(function (i, dropdown) {
     var selectedAllele = $(dropdown).attr('selected-value');
-    var gene = $(dropdown).attr('gene');
-    console.info("alleles: {0} => {1}", gene, selectedAllele);
-    //yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, gene, yourOrganismAlleles, selectedAllele);
+    var characteristic = $(dropdown).attr('characteristic');
+    console.info("alleles: {0} => {1}", characteristic, selectedAllele);
+    //yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, characteristic, yourOrganismAlleles, selectedAllele);
   });
 }
 
