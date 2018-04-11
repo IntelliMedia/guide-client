@@ -30,11 +30,11 @@ function getEggDropChallengeId() {
     return challengeId;
 }
 
-function submitEgg(sex, characteristic, phenotype) {
+function submitEgg(sex, characteristic, trait) {
 
     var organismSex = sexToString(targetOrganism.sex);
     var correct = (organismSex == sex
-        && BiologicaX.getCharacteristic(targetOrganism, characteristic) == phenotype);
+        && BiologicaX.getCharacteristic(targetOrganism, characteristic) == trait);
 
     if (correct) {
         showPopup(
@@ -50,7 +50,7 @@ function submitEgg(sex, characteristic, phenotype) {
     }
 
     var selectedPhenotype = {};
-    selectedPhenotype[characteristic] = phenotype;
+    selectedPhenotype[characteristic] = trait;
 
     var context = {
         "challengeId": getEggDropChallengeId(),
@@ -164,7 +164,7 @@ function updateEggDropControls(characteristics, organism) {
         var characterisitic = traits[traitIndex];
 
         $(this).attr("sex", sex);
-        $(this).attr("phenotype", characterisitic);
+        $(this).attr("trait", characterisitic);
         $(this).attr("characteristic", basketCharacteristic);
         $(this).html(sex + " - " + characterisitic);
     });
@@ -173,12 +173,12 @@ function updateEggDropControls(characteristics, organism) {
 $("#egg-drop-buttons .btn").click(function () {
     var sex = $(this).attr("sex");
     var characteristic = $(this).attr("characteristic");
-    var phenotype = $(this).attr("phenotype");
+    var trait = $(this).attr("trait");
 
     console.info("Basket button pressed: %s - %s",
-        sex, characteristic, phenotype);
+        sex, characteristic, trait);
 
-    submitEgg(sex, characteristic, phenotype);
+    submitEgg(sex, characteristic, trait);
 });
 
 function sexToString(sex) {
