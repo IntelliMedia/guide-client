@@ -7,6 +7,7 @@ var minRandomAlleles = 4;
 var maxRandomAlleles = 10;
 
 var targetOrganism = null;
+var currentOrganism = null;
 var yourInitialAlleles = null;
 var yourOrganismAlleles = null;
 var yourOrganismSex = null;
@@ -42,13 +43,15 @@ function submitOrganism() {
   updateAllelesFromDropdowns();
   updateSexFromDropdown();
 
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  let yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
   yourOrganism.species.makeAlive(yourOrganism);
 
   var filename = imageUrlBase + yourOrganism.getImageName();
   $('#yourOrganismImage').attr('src', filename);
 
-  var correct = (yourOrganism.getImageName() == targetOrganism.getImageName());
+  var myOrganismImage = yourOrganism.getImageName();
+  var targetOrganismImage = targetOrganism.getImageName();
+  var correct = (myOrganismImage == targetOrganismImage);
 
   if (correct) {
     showPopup(
@@ -101,13 +104,20 @@ function randomOrganism() {
 
   yourInitialAlleles = BiologicaX.randomizeAlleles(targetSpecies, editableCharacteristics, targetOrganism.getAlleleString());
   yourOrganismAlleles = yourInitialAlleles;
+  yourOrganismSex = targetOrganismSex == 0 ? "1" : "0";
+
   updateAlleleDropdowns(yourOrganismAlleles);
-  updateSexDropdown(targetOrganismSex == 0 ? "1" : "0");
+  updateSexDropdown(yourOrganismSex);  
 
   var filename = imageUrlBase + targetOrganism.getImageName();
   $('#targetOrganismImage').attr('src', filename);
-
   $('#yourOrganismImage').attr('src', questionMarkImageUrl);
+
+  updateAllelesFromDropdowns();
+  updateSexFromDropdown();
+  
+  currentOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  currentOrganism.species.makeAlive(currentOrganism);  
 }
 
 function getChromosomeChallengeId() {
@@ -180,13 +190,42 @@ $(".dropdown-menu li a").click(function () {
 function onAlleleChanged(characteristicName, allele) {
   console.info("Selected allele: " + characteristicName + "  allele: " + allele);
 
-  var yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
+  yourOrganismAlleles = BiologicaX.replaceAllele(targetSpecies, characteristicName, yourOrganismAlleles, allele);  
+  
+  let yourOrganism = new BioLogica.Organism(targetSpecies, yourOrganismAlleles, yourOrganismSex);
   yourOrganism.species.makeAlive(yourOrganism);
 
+  var myOrganismImage = yourOrganism.getImageName();
+  var targetOrganismImage = targetOrganism.getImageName();
+  var correct = (myOrganismImage == targetOrganismImage);
+
+  var selectableAttributes = [characteristicName];
+
   var context = {
-    "characteristic": characteristicName,
-    "allele": allele
+    "challengeId": getChromosomeChallengeId(),
+    "challengeCriteria": {
+      "sex": sexToString(targetOrganism.sex),
+      "phenotype": targetOrganism.phenotype.characteristics
+    },
+    "userSelections": {
+      "alleles": yourOrganism.getAlleleString(),
+      "sex": sexToString(yourOrganism.sex)
+    },
+    "selectableAttributes": selectableAttributes,
+    "classId": getClassId(),
+    "groupId": getGroupId(),    
+    "correct": correct,
+    "incrementMoves": true
   };
+
+  if (currentOrganism) {
+    context.current = {
+      "alleles": currentOrganism.getAlleleString(),
+      "sex": sexToString(currentOrganism.sex)
+    };
+  }
+
+  currentOrganism = yourOrganism;
 
   SendGuideEvent(
     "USER",
