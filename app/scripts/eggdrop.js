@@ -30,11 +30,11 @@ function getEggDropChallengeId() {
     return challengeId;
 }
 
-function submitEgg(sex, characteristic, trait) {
+function submitEgg(sex, characteristic, targetTrait) {
 
     var organismSex = sexToString(targetOrganism.sex);
     var correct = (organismSex == sex
-        && BiologicaX.getCharacteristic(targetOrganism, characteristic) == trait);
+        && BiologicaX.getCharacteristic(targetOrganism, characteristic) == targetTrait);
 
     if (correct) {
         showPopup(
@@ -49,20 +49,30 @@ function submitEgg(sex, characteristic, trait) {
             "The basket you selected doesn't match the egg. Please try again.");
     }
 
-    var selectedPhenotype = {};
-    selectedPhenotype[characteristic] = trait;
+    let targetCharacteristic = (characteristic == "metallic" ? "color" : characteristic);
+    if (characteristic == "metallic") {
+        if (targetTrait.toLowerCase() == "metallic") {
+            targetTrait = BiologicaX.getTraitFromAlleles(targetOrganism.species, ["a:M", "b:M"]);
+        } else {
+            targetTrait = BiologicaX.getTraitFromAlleles(targetOrganism.species, ["a:m", "b:m"]);
+        }
+    }
+    let phenotype = {};
+    phenotype[targetCharacteristic] = targetTrait;
+    var selectedAlleles = targetOrganism.getAlleleStringForTrait(targetCharacteristic);
 
     var context = {
+        "challengeType": "Hatchery",
         "challengeId": getEggDropChallengeId(),
         "challengeCriteria": {
             "sex": organismSex,
-            "alleles": targetOrganism.getAlleleString()
+            "phenotype": phenotype
         },
         "userSelections": {
             "sex": sex,
-            "phenotype": selectedPhenotype
+            "alleles": selectedAlleles
         },
-        "selectableAttributes": [characteristic],
+        "selectableAttributes": ["sex", characteristic],
         "classId": getClassId(),
         "groupId": getGroupId(),        
         "correct": correct,
@@ -166,21 +176,21 @@ function updateEggDropControls(characteristics, organism) {
         $(this).attr("sex", sex);
         $(this).attr("trait", characterisitic);
         $(this).attr("characteristic", basketCharacteristic);
-        $(this).html(sex + " - " + characterisitic);
+        $(this).html(sex + " - " + BiologicaX.getDisplayName(characterisitic));
     });
 }
 
 $("#egg-drop-buttons .btn").click(function () {
     var sex = $(this).attr("sex");
     var characteristic = $(this).attr("characteristic");
-    var trait = $(this).attr("trait");
+    var targetTrait = $(this).attr("trait");
 
     console.info("Basket button pressed: %s - %s",
-        sex, characteristic, trait);
+        sex, characteristic, targetTrait);
 
-    submitEgg(sex, characteristic, trait);
+    submitEgg(sex, characteristic, targetTrait);
 });
 
 function sexToString(sex) {
     return (sex == 0 ? "Male" : "Female");
-  }
+}

@@ -69,6 +69,7 @@ function submitOrganism() {
   var selectableAttributes = ["sex"].concat(editableCharacteristics);
 
   var context = {
+    "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
     "challengeCriteria": {
       "sex": sexToString(targetOrganism.sex),
@@ -202,6 +203,7 @@ function onAlleleChanged(characteristicName, allele) {
   var selectableAttributes = [characteristicName];
 
   var context = {
+    "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
     "challengeCriteria": {
       "sex": sexToString(targetOrganism.sex),

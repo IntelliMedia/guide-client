@@ -124,6 +124,7 @@ function submitOffspring(offspringIndex) {
   var selectableAttributes = ["sex"].concat(editableCharacteristics);
 
   var context = {
+    "challengeType": "Breeding",
     "challengeId": getBreedingChallengeId(),
     "challengeCriteria": {
       "sex": sexToString(organismsByRole.target.sex),
