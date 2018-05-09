@@ -116,13 +116,25 @@ function initializeGuideConnection() {
 
   // Handle messages from GUIDE server
 
-  socket.on(GuideProtocol.TutorDialog.Channel, (data) => {
-    var tutorDialog = GuideProtocol.TutorDialog.fromJson(data);
-    console.info("ITS TutorDialog:", tutorDialog);
+  socket.on(GuideProtocol.Event.Channel, (data) => {
+    var event = GuideProtocol.Event.fromJson(data);
+    console.info("Received from ITS:", event);
 
-    var message = tutorDialog.message.asString();
-    tutorFeedbackQueue.push(message);
-    displayTutorFeedback();
+    if (event.action === "HINT") {
+      var message = event.context.hintDialog;
+      tutorFeedbackQueue.push(message);
+      displayTutorFeedback();
+    } else if (event.action === "SPOKETO") {
+      var message = event.context.dialog;
+      tutorFeedbackQueue.push(message);
+      displayTutorFeedback();
+    } else {
+      showPopup(
+        'info',
+        'Server',
+        event.action + " " + event.context.conceptId
+      );
+    }
   });
 
   socket.on(GuideProtocol.Alert.Channel, (data) => {
