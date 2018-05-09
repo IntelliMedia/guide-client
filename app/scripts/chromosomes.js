@@ -71,19 +71,18 @@ function submitOrganism() {
   var context = {
     "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
-    "challengeCriteria": {
+    "target": {
       "sex": sexToString(targetOrganism.sex),
       "phenotype": targetOrganism.phenotype.characteristics
     },
-    "userSelections": {
+    "selected": {
       "alleles": yourOrganism.getAlleleString(),
       "sex": sexToString(yourOrganism.sex)
     },
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),    
-    "correct": correct,
-    "incrementMoves": true
+    "correct": correct
   };
 
   SendGuideEvent(
@@ -205,23 +204,22 @@ function onAlleleChanged(characteristicName, allele) {
   var context = {
     "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
-    "challengeCriteria": {
+    "target": {
       "sex": sexToString(targetOrganism.sex),
       "phenotype": targetOrganism.phenotype.characteristics
     },
-    "userSelections": {
+    "selected": {
       "alleles": yourOrganism.getAlleleString(),
       "sex": sexToString(yourOrganism.sex)
     },
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),    
-    "correct": correct,
-    "incrementMoves": true
+    "correct": correct
   };
 
   if (currentOrganism) {
-    context.current = {
+    context.previous = {
       "alleles": currentOrganism.getAlleleString(),
       "sex": sexToString(currentOrganism.sex)
     };

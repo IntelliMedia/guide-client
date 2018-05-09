@@ -126,12 +126,12 @@ function submitOffspring(offspringIndex) {
   var context = {
     "challengeType": "Breeding",
     "challengeId": getBreedingChallengeId(),
-    "challengeCriteria": {
+    "target": {
       "sex": sexToString(organismsByRole.target.sex),
       "phenotype": organismsByRole.target.phenotype.characteristics
     },
     "species": submittedOrganism.species.name,
-    "userSelections": {
+    "selected": {
       "motherAlleles": organismsByRole.mother.getAlleleString(),
       "fatherAlleles": organismsByRole.father.getAlleleString(),
       "offspringAlleles": submittedOrganism.getAlleleString(),

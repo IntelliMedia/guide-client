@@ -64,19 +64,18 @@ function submitEgg(sex, characteristic, targetTrait) {
     var context = {
         "challengeType": "Hatchery",
         "challengeId": getEggDropChallengeId(),
-        "challengeCriteria": {
+        "target": {
             "sex": organismSex,
             "phenotype": phenotype
         },
-        "userSelections": {
+        "selected": {
             "sex": sex,
             "alleles": selectedAlleles
         },
         "selectableAttributes": ["sex", characteristic],
         "classId": getClassId(),
         "groupId": getGroupId(),        
-        "correct": correct,
-        "incrementMoves": true
+        "correct": correct
     };
 
     SendGuideEvent(
