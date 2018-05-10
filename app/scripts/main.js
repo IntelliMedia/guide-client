@@ -65,8 +65,16 @@ function initializeGuideConnection() {
     default:
       // When running on production, the client assumes its path is under the server. 
       // E.g. https://guide.intellimedia.ncsu.edu/v3/client
-      server = document.head.baseURI.replace("https:", "wss:");
+      server = RemoveLastDirectoryPartOf(document.head.baseURI).replace("https:", "wss:");
   }
+
+// https://stackoverflow.com/questions/16750524/remove-last-directory-in-url
+function RemoveLastDirectoryPartOf(the_url)
+{
+    var the_arr = the_url.split('/');
+    the_arr.pop();
+    return( the_arr.join('/') );
+}
 
   updateConnectionStatus(false);
 
