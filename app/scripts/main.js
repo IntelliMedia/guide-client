@@ -7,7 +7,7 @@
  */
 
 const ClientVersion = '3.0.0';
-const guideProtocol = 'guide-protocol-v3';
+const guideProtocol = 'guide-protocol';
 const GuideLocalServer = 'ws://localhost:3000';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';

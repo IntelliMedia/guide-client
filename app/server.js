@@ -5,7 +5,7 @@ var serveStatic = require('serve-static');
  * Configure the path where the web app is located 
  */
 if (!process.env.BASE_PATH) {
-    process.env.BASE_PATH = '/foo/';
+    process.env.BASE_PATH = '/';
 }
 
 connect()
