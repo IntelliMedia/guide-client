@@ -8,7 +8,6 @@
 
 const ClientVersion = '3.0.0';
 const guideProtocol = 'guide-protocol-v3';
-const GuideProductionServer = 'wss://guide.intellimedia.ncsu.edu';
 const GuideLocalServer = 'ws://localhost:3000';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
@@ -64,7 +63,9 @@ function initializeGuideConnection() {
 
     // Production Server     
     default:
-      server = GuideProductionServer;
+      // When running on production, the client assumes its path is under the server. 
+      // E.g. https://guide.intellimedia.ncsu.edu/v3/client
+      server = document.head.baseURI.replace("https:", "wss:");
   }
 
   updateConnectionStatus(false);
