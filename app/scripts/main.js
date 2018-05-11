@@ -53,38 +53,37 @@ initializeGuideConnection();
 
 function initializeGuideConnection() {
 
-  var server = null;
-  switch (window.location.protocol) {
-    // Local Test Server
-    case 'http:':
-    case 'file:':
-      server = GuideLocalServer;
-      break;
+  var url = new URL(document.head.baseURI);
 
-    // Production Server     
-    default:
-      // When running on production, the client assumes its path is under the server. 
-      // E.g. https://guide.intellimedia.ncsu.edu/v3/client
-      server = RemoveLastDirectoryPartOf(document.head.baseURI).replace("https:", "wss:");
+  // Create server URI from client's URL host info
+  var server = url.protocol === "https:" ? "wss://" : "ws://";
+  server += url.hostname;
+  if (url.hostname === "localhost") {
+    // When running in developer environment, the server is hosted at port 3000
+    server += ":3000";
+  } else {
+    server += ":" + url.port;
   }
 
-// https://stackoverflow.com/questions/16750524/remove-last-directory-in-url
-function RemoveLastDirectoryPartOf(the_url)
-{
-    var the_arr = the_url.split('/');
-    the_arr.pop();
-    return( the_arr.join('/') );
-}
+  // Derive socket.io path from client's URL path
+  var socketPath = url.pathname.replace("/client", "");
 
   updateConnectionStatus(false);
 
-  var serverUrl = server + '/' + guideProtocol;
-  socket = io(serverUrl);
+  socketPath += "socket.io";
+  console.info("Connection info: %s  path: %s  namespace: %s", server, socketPath, guideProtocol);
+
+  var serverUrl = server + '/' + guideProtocol; 
+  console.info("Connect to: %s", serverUrl);
+  socket = io(serverUrl, {
+    path: socketPath
+  });
 
   // Handle socket.io state changes
 
   socket.on('error', (err) => {
     showError('Communication error: ' + err + "\n" + serverUrl);
+    console.error(err);
   });
 
   socket.on('connect_error', (err) => {
