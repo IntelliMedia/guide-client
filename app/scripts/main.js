@@ -7,8 +7,7 @@
  */
 
 const ClientVersion = '3.0.0';
-const guideProtocol = 'guide-protocol';
-const GuideLocalServer = 'ws://localhost:3000';
+const GuideSocketioNamespace = 'guide-protocol';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'images/question_mark.png';
@@ -71,9 +70,9 @@ function initializeGuideConnection() {
   updateConnectionStatus(false);
 
   socketPath += "socket.io";
-  console.info("Connection info: %s  path: %s  namespace: %s", server, socketPath, guideProtocol);
+  console.info("Connection info: %s  path: %s  namespace: %s", server, socketPath, GuideSocketioNamespace);
 
-  var serverUrl = server + '/' + guideProtocol; 
+  var serverUrl = server + '/' + GuideSocketioNamespace; 
   console.info("Connect to: %s", serverUrl);
   socket = io(serverUrl, {
     path: socketPath
