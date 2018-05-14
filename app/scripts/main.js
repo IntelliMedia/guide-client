@@ -21,7 +21,6 @@ const DefaultClassId = 123456789;
  * Global Variables
  */
 
-var sequenceNumber = null;
 var currentUser = null;
 var currentSessionId = null;
 var socket = null;
@@ -127,66 +126,66 @@ function initializeGuideConnection() {
     var event = GuideProtocol.Event.fromJson(data);
     console.info("Received from ITS:", event);
 
-    if (event.action === "HINT") {
-      var message = event.context.hintDialog;
-      tutorFeedbackQueue.push(message);
-      displayTutorFeedback();
-    } else if (event.action === "SPOKETO") {
-      var message = event.context.dialog;
-      tutorFeedbackQueue.push(message);
-      displayTutorFeedback();
+    if (event.isMatch("ITS", "HINT", "USER")) {
+      handleTutorDialog(event.context.hintDialog);
+    } else if (event.isMatch("ITS", "REMEDIATE", "USER")) {
+      handleRemediation(event.context.conceptId);
+    } else if (event.isMatch("ITS", "SPOKETO", "USER")) {
+      handleTutorDialog(event.context.dialog);
+    } else if (event.isMatch("ITS", "ISSUED", "*")) {
+      handleAlert(event.context.type,  event.context.message);
     } else {
       showPopup(
         'info',
         'Server',
-        event.action + " " + event.context.conceptId
+        'Unhandled message: ' + event.toString()
       );
     }
   });
 
-  socket.on(GuideProtocol.Alert.Channel, (data) => {
-    var alert = GuideProtocol.Alert.fromJson(data);
-    
-    switch (alert.type) {
-      case GuideProtocol.Alert.Error:
-        console.error("ITS Error: " + alert.message);
-        showPopup(
-          'error',
-          'Server',
-          alert.message
-        );
-        break;
+  function handleTutorDialog(message) {
+    tutorFeedbackQueue.push(message);
+    displayTutorFeedback();
+  }
 
-      case GuideProtocol.Alert.Warning:
-        console.warn("ITS Warning: " + alert.message);
-        showPopup(
-          'warning',
-          'Server',
-          alert.message
-        );
-        break;
+  function handleRemediation(conceptId) {
+    showPopup(
+      'info',
+      'Start Remediation',
+      'ITS is requesting remediation for ' + conceptId
+    );
+  }
 
-      case GuideProtocol.Alert.Info:
-        console.info("ITS Info: " + alert.message);
+  function handleAlert(type, message) { 
+    if (type === GuideProtocol.Alert.Error
+      || type === GuideProtocol.Alert.Warning
+      || type === GuideProtocol.Alert.Info) {
+        
+        var method = type.toLowerCase();
         showPopup(
-          'info',
+          method,
           'Server',
-          alert.message
+          message
         );
-        break;
 
-      //case GuideProtocol.Alert.Debug:
-      default:
-        console.log("ITS Debug: " + alert.message);
-    }
-  });
+        if (type === GuideProtocol.Alert.Error) {
+          console.error("ITS: %s", message);
+        } else if (type === GuideProtocol.Alert.Warning) {
+          console.warn("ITS: %s", message);
+        } else {
+          console.info("ITS: %s", message);
+        }
+
+      } else {
+        console.log("ITS: %s", message);
+      }
+  }
 }
 
 function SendGuideEvent(actor, action, target, context) {
   var event = new GuideProtocol.Event(
     currentUser,
     currentSessionId,
-    sequenceNumber++,
     actor,
     action,
     target,
@@ -291,7 +290,6 @@ function startSession() {
 
   currentUser = getStudentId();
   currentSessionId = guid();
-  sequenceNumber = 0;
 
   var context = {
     "classId": getClassId(),
@@ -398,6 +396,7 @@ function displayTutorFeedback() {
       'Tutor',
       message
     );
+    console.info("ITS Feedback: '%s'", message);
   }
 }
 
