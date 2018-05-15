@@ -71,6 +71,7 @@ function submitOrganism() {
   var context = {
     "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
+    "species": targetSpecies.name,
     "target": {
       "sex": sexToString(targetOrganism.sex),
       "phenotype": targetOrganism.phenotype.characteristics
@@ -84,6 +85,15 @@ function submitOrganism() {
     "groupId": getGroupId(),    
     "correct": correct
   };
+
+  if (currentOrganism) {
+    context.previous = {
+      "alleles": currentOrganism.getAlleleString(),
+      "sex": sexToString(currentOrganism.sex)
+    };
+  }
+
+  currentOrganism = yourOrganism;
 
   SendGuideEvent(
     "USER",
@@ -204,6 +214,7 @@ function onAlleleChanged(characteristicName, allele) {
   var context = {
     "challengeType": "Sim",
     "challengeId": getChromosomeChallengeId(),
+    "species": targetSpecies.name,
     "target": {
       "sex": sexToString(targetOrganism.sex),
       "phenotype": targetOrganism.phenotype.characteristics

@@ -64,6 +64,7 @@ function submitEgg(sex, characteristic, targetTrait) {
     var context = {
         "challengeType": "Hatchery",
         "challengeId": getEggDropChallengeId(),
+        "species": targetSpecies.name,
         "target": {
             "sex": organismSex,
             "phenotype": phenotype

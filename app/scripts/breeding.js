@@ -5,9 +5,10 @@ var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 
 var organismsByRole = {
+  target: null,
   mother: null,
   father: null,
-  target: null
+  organism: null
 }
 
 var clutchOrganisms = [];
@@ -102,11 +103,11 @@ function createClutchButtons(clutchOrganisms) {
 }
 
 function submitOffspring(offspringIndex) {
-  var submittedOrganism = clutchOrganisms[offspringIndex];
+  organismsByRole.offspring = clutchOrganisms[offspringIndex];
 
-  console.info("Submit " + submittedOrganism.getImageName());  
+  console.info("Submit " + organismsByRole.offspring.getImageName());  
 
-  var correct = (submittedOrganism.getImageName() == organismsByRole.target.getImageName());
+  var correct = (organismsByRole.offspring.getImageName() == organismsByRole.target.getImageName());
 
   if (correct) {
     showPopup(
@@ -126,16 +127,17 @@ function submitOffspring(offspringIndex) {
   var context = {
     "challengeType": "Breeding",
     "challengeId": getBreedingChallengeId(),
+    "species": targetSpecies.name,
     "target": {
       "sex": sexToString(organismsByRole.target.sex),
       "phenotype": organismsByRole.target.phenotype.characteristics
     },
-    "species": submittedOrganism.species.name,
+    "species": organismsByRole.offspring.species.name,
     "selected": {
       "motherAlleles": organismsByRole.mother.getAlleleString(),
       "fatherAlleles": organismsByRole.father.getAlleleString(),
-      "offspringAlleles": submittedOrganism.getAlleleString(),
-      "offspringSex": sexToString(submittedOrganism.sex)
+      "offspringAlleles": organismsByRole.offspring.getAlleleString(),
+      "offspringSex": sexToString(organismsByRole.offspring.sex)
     },
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
@@ -231,24 +233,26 @@ $(".dropdown-menu li a").click(function () {
 });
 
 function onAlleleChanged(role, characteristic, newAllele) {
-  console.info("Selected %s's %s -> %s", role, characteristic, newAllele);
+  // Disabled until we can evaluate moves in breeding challenges
+  
+  // console.info("Selected %s's %s -> %s", role, characteristic, newAllele);
 
-  var alleles = organismsByRole[role].getAlleleString();
-  alleles = BiologicaX.replaceAllele(organismsByRole[role].species, characteristic, alleles, newAllele);
-  organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
-  organismsByRole[role].species.makeAlive(organismsByRole[role]);
-  updateOrganismImage(role);
+  // var alleles = organismsByRole[role].getAlleleString();
+  // alleles = BiologicaX.replaceAllele(organismsByRole[role].species, characteristic, alleles, newAllele);
+  // organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
+  // organismsByRole[role].species.makeAlive(organismsByRole[role]);
+  // updateOrganismImage(role);
 
-  var context = {
-    "characteristic": characteristic,
-    "allele": newAllele
-  };
+  // var context = {
+  //   "characteristic": characteristic,
+  //   "allele": newAllele
+  // };
 
-  SendGuideEvent(
-    "USER",
-    "CHANGED",
-    "ALLELE",
-    context);
+  // SendGuideEvent(
+  //   "USER",
+  //   "CHANGED",
+  //   "ALLELE",
+  //   context);
 }
 
 function updateAllelesFromDropdowns(organismDiv, organism) {

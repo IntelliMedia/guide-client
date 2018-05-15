@@ -132,7 +132,7 @@ function initializeGuideConnection() {
       handleRemediation(event.context.conceptId);
     } else if (event.isMatch("ITS", "SPOKETO", "USER")) {
       handleTutorDialog(event.context.dialog);
-    } else if (event.isMatch("ITS", "ISSUED", "*")) {
+    } else if (event.isMatch("ITS", "ISSUED", "ALERT")) {
       handleAlert(event.context.type,  event.context.message);
     } else {
       showPopup(
