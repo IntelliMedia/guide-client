@@ -6,7 +6,7 @@
  * Constants
  */
 
-const ClientVersion = '3.0.0';
+const ClientVersion = '3.1.0';
 const GuideSocketioNamespace = 'guide-protocol';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
