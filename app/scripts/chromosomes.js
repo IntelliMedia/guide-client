@@ -1,6 +1,9 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
-var editableCharacteristics = ["metallic", "wings", "forelimbs", "armor"];
+var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings"];
+//var editableCharacteristics = ["wings", "forelimbs", "armor", "tail", "metallic", "color", "black"];
+//var editableCharacteristics = ["metallic", "color", "black"];
+
 var targetSpecies =BioLogica.Species.Drake;
 
 var minRandomAlleles = 4;
@@ -83,7 +86,8 @@ function submitOrganism() {
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),    
-    "correct": correct
+    "correct": correct,
+    "remediation": true
   };
 
   if (currentOrganism) {
@@ -226,7 +230,8 @@ function onAlleleChanged(characteristicName, allele) {
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),    
-    "correct": correct
+    "correct": correct,
+    "remediation": true
   };
 
   if (currentOrganism) {
