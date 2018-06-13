@@ -1,0 +1,25 @@
+{
+  "name": "guide-client",
+  "version": "3.4.0",
+  "description": "Test client for guide-server",
+  "main": "server.js",
+  "dependencies": {
+    "connect": "^3.6.6",
+    "debug": "^2.6.9",
+    "serve-static": "^1.13.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IntelliMedia/guide-client.git"
+  },
+  "author": "Robert G. Taylor",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/IntelliMedia/guide-client/issues"
+  },
+  "homepage": "https://github.com/IntelliMedia/guide-client#readme"
+}
