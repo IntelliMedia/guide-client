@@ -1,8 +1,9 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
-var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings", "nose spike"];
-//var editableCharacteristics = ["wings", "forelimbs", "armor", "tail", "metallic", "color", "black"];
-//var editableCharacteristics = ["metallic", "color", "black"];
+// All
+var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings", "nose spike", "metallic", "colored", "black", "dilute"];
+// Color subtraits
+//var editableCharacteristics = ["metallic", "colored", "black", "dilute"];
 
 var targetSpecies =BioLogica.Species.Drake;
 
