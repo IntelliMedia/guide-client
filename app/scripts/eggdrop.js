@@ -76,7 +76,8 @@ function submitEgg(sex, characteristic, targetTrait) {
         "selectableAttributes": ["sex", characteristic],
         "classId": getClassId(),
         "groupId": getGroupId(),        
-        "correct": correct
+        "correct": correct,
+        "remediation": true
     };
 
     SendGuideEvent(

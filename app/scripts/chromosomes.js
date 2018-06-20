@@ -1,10 +1,12 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
-var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings"];
+var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings", "nose spike"];
 //var editableCharacteristics = ["wings", "forelimbs", "armor", "tail", "metallic", "color", "black"];
 //var editableCharacteristics = ["metallic", "color", "black"];
 
 var targetSpecies =BioLogica.Species.Drake;
+
+BioLogica.Species.Drake.geneList["nose spike"] = BioLogica.Species.Drake.geneList["nose"];
 
 var minRandomAlleles = 4;
 var maxRandomAlleles = 10;

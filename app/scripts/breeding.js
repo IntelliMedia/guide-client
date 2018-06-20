@@ -142,7 +142,8 @@ function submitOffspring(offspringIndex) {
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),
-    "correct": correct
+    "correct": correct,
+    "remediation": true
   };
 
   SendGuideEvent(
