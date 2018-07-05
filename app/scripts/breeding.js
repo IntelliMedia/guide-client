@@ -139,6 +139,12 @@ function submitOffspring(offspringIndex) {
       "offspringAlleles": organismsByRole.offspring.getAlleleString(),
       "offspringSex": sexToString(organismsByRole.offspring.sex)
     },
+    "previous": {
+      "motherAlleles": organismsByRole.mother.getAlleleString(),
+      "fatherAlleles": organismsByRole.father.getAlleleString(),
+      "offspringAlleles": organismsByRole.offspring.getAlleleString(),
+      "offspringSex": sexToString(organismsByRole.offspring.sex)
+    },
     "selectableAttributes": selectableAttributes,
     "classId": getClassId(),
     "groupId": getGroupId(),
