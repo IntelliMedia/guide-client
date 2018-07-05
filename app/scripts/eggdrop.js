@@ -66,12 +66,12 @@ function submitEgg(sex, characteristic, targetTrait) {
         "challengeId": getEggDropChallengeId(),
         "species": targetSpecies.name,
         "target": {
-            "sex": organismSex,
-            "phenotype": phenotype
+            "alleles": targetOrganism.getAlleleString(),
+            "sex": sexToString(targetOrganism.sex)
         },
         "selected": {
             "sex": sex,
-            "alleles": selectedAlleles
+            "phenotype": {}
         },
         "selectableAttributes": ["sex", characteristic],
         "classId": getClassId(),
@@ -79,6 +79,8 @@ function submitEgg(sex, characteristic, targetTrait) {
         "correct": correct,
         "remediation": true
     };
+
+    context.selected.phenotype[characteristic] = targetTrait;
 
     SendGuideEvent(
         "USER",
