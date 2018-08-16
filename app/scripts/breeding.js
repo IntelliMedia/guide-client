@@ -98,11 +98,48 @@ function createClutchButtons(clutchOrganisms) {
   clutchDiv.html(clutchHtml);
 
   clutchDiv.find('.submit-button').click(function() {
-    submitOffspring($(this).attr("clutch"));
+    selectOffspring($(this).attr("clutch"));
   });
 }
 
-function submitOffspring(offspringIndex) {
+function breedClutch() {
+
+  console.info("Breed clutch");  
+
+  var selectableAttributes = ["sex"].concat(editableCharacteristics);
+
+  var context = {
+    "challengeType": "Breeding",
+    "challengeId": getBreedingChallengeId(),
+    "species": targetSpecies.name,
+    "target": {
+      "sex": sexToString(organismsByRole.target.sex),
+      "phenotype": organismsByRole.target.phenotype.characteristics
+    },
+    "species": organismsByRole.mother.species.name,
+    "selected": {
+      "motherAlleles": organismsByRole.mother.getAlleleString(),
+      "fatherAlleles": organismsByRole.father.getAlleleString()
+    },
+    "previous": {
+      "motherAlleles": organismsByRole.mother.getAlleleString(),
+      "fatherAlleles": organismsByRole.father.getAlleleString()
+    },
+    "selectableAttributes": selectableAttributes,
+    "classId": getClassId(),
+    "groupId": getGroupId(),
+//    "correct": correct,
+    "remediation": true
+  };
+
+  SendGuideEvent(
+    "USER",
+    "BRED",
+    "CLUTCH",
+    context);
+}
+
+function selectOffspring(offspringIndex) {
   organismsByRole.offspring = clutchOrganisms[offspringIndex];
 
   console.info("Submit " + organismsByRole.offspring.getImageName());  
@@ -134,14 +171,10 @@ function submitOffspring(offspringIndex) {
     },
     "species": organismsByRole.offspring.species.name,
     "selected": {
-      "motherAlleles": organismsByRole.mother.getAlleleString(),
-      "fatherAlleles": organismsByRole.father.getAlleleString(),
       "offspringAlleles": organismsByRole.offspring.getAlleleString(),
       "offspringSex": sexToString(organismsByRole.offspring.sex)
     },
     "previous": {
-      "motherAlleles": organismsByRole.mother.getAlleleString(),
-      "fatherAlleles": organismsByRole.father.getAlleleString(),
       "offspringAlleles": organismsByRole.offspring.getAlleleString(),
       "offspringSex": sexToString(organismsByRole.offspring.sex)
     },
@@ -154,7 +187,7 @@ function submitOffspring(offspringIndex) {
 
   SendGuideEvent(
     "USER",
-    "SUBMITTED",
+    "SELECTED",
     "OFFSPRING",
     context);
 }
@@ -168,6 +201,8 @@ function breed() {
     }
 
     createClutchButtons(clutchOrganisms);
+
+    breedClutch();
 }
 
 function sexToString(sex) {
