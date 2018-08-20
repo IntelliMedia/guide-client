@@ -6,13 +6,13 @@
  * Constants
  */
 
-const ClientVersion = '3.9.0';
+const ClientVersion = '3.10.0';
 const GuideSocketioNamespace = 'guide-protocol';
 
 const imageUrlBase = 'https://geniverse-resources.concord.org/resources/drakes/images/';
 const questionMarkImageUrl = 'images/question_mark.png';
 
-const DefaultGroupId = "ECD-3.10";
+const DefaultGroupId = "GUIDE-3.10";
 const DefaultItsDBEndpoint = "1/userState/https%3A%2F%2Flearn%2Econcord%2Eorg%2Fapi%2Fv1%2Fclasses%2F325/https%3A%2F%2Flearn%2Econcord%2Eorg%2F71692/itsData";
 
 const DefaultClassId = 123456789;
