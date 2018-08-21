@@ -23,6 +23,7 @@ const DefaultClassId = 123456789;
 
 var currentUser = null;
 var currentSessionId = null;
+var sequence = 0;
 var socket = null;
 
 var targetSpecies = BioLogica.Species.Drake;
@@ -190,6 +191,8 @@ function SendGuideEvent(actor, action, target, context) {
     action,
     target,
     context);
+
+  event.sequence = sequence++;
 
   console.info("Send to ITS:", event);
   socket.emit(GuideProtocol.Event.Channel, event.toJson());
