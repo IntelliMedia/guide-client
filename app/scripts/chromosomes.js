@@ -1,13 +1,11 @@
 const DefaultChromosomeChallengeIdInput = "allele-targetMatch-visible-simpleDom";
 
 // All
-var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings", "nose spike", "metallic", "colored", "black", "dilute"];
+var editableCharacteristics = ["armor", "tail", "forelimbs", "hindlimbs", "horns", "wings", "nose", "metallic", "colored", "black", "dilute"];
 // Color subtraits
 //var editableCharacteristics = ["metallic", "colored", "black", "dilute"];
 
-var targetSpecies =BioLogica.Species.Drake;
-
-BioLogica.Species.Drake.geneList["nose spike"] = BioLogica.Species.Drake.geneList["nose"];
+var targetSpecies = BioLogica.Species.Drake;
 
 var minRandomAlleles = 4;
 var maxRandomAlleles = 10;
@@ -216,7 +214,7 @@ function onAlleleChanged(characteristicName, allele) {
   var targetOrganismImage = targetOrganism.getImageName();
   var correct = (myOrganismImage == targetOrganismImage);
 
-  var selectableAttributes = [characteristicName];
+  var selectableAttributes = ["sex"].concat(editableCharacteristics);
 
   var context = {
     "challengeType": "Sim",

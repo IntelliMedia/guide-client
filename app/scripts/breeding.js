@@ -1,6 +1,6 @@
 var DefaultBreedingChallengeIdInput = "clutch-5drakes-intermediateTraits";
 
-var editableCharacteristics = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "color", "gray", "armor"];
+var editableCharacteristics = ["metallic", "wings", "forelimbs", "hindlimbs", "horns", "colored", "gray", "armor"];
 var targetSpecies = BioLogica.Species.Drake;
 var breedingRandomAlleles = 4;
 
@@ -102,6 +102,39 @@ function createClutchButtons(clutchOrganisms) {
   });
 }
 
+function changedParent() {
+
+  console.info("Changed parent");  
+
+  var selectableAttributes = ["sex"].concat(editableCharacteristics);
+
+  var context = {
+    "challengeType": "Breeding",
+    "challengeId": getBreedingChallengeId(),
+    "species": targetSpecies.name,
+    "target": [{
+      "sex": sexToString(organismsByRole.target.sex),
+      "phenotype": organismsByRole.target.phenotype.characteristics
+    }],
+    "species": organismsByRole.mother.species.name,
+    "selected": {
+      "motherAlleles": organismsByRole.mother.getAlleleString(),
+      "fatherAlleles": organismsByRole.father.getAlleleString()
+    },
+    "selectableAttributes": selectableAttributes,
+    "classId": getClassId(),
+    "groupId": getGroupId(),
+//    "correct": correct,
+    "remediation": true
+  };
+
+  SendGuideEvent(
+    "USER",
+    "CHANGED",
+    "PARENT",
+    context);
+}
+
 function breedClutch() {
 
   console.info("Breed clutch");  
@@ -112,16 +145,12 @@ function breedClutch() {
     "challengeType": "Breeding",
     "challengeId": getBreedingChallengeId(),
     "species": targetSpecies.name,
-    "target": {
+    "target": [{
       "sex": sexToString(organismsByRole.target.sex),
       "phenotype": organismsByRole.target.phenotype.characteristics
-    },
+    }],
     "species": organismsByRole.mother.species.name,
     "selected": {
-      "motherAlleles": organismsByRole.mother.getAlleleString(),
-      "fatherAlleles": organismsByRole.father.getAlleleString()
-    },
-    "previous": {
       "motherAlleles": organismsByRole.mother.getAlleleString(),
       "fatherAlleles": organismsByRole.father.getAlleleString()
     },
@@ -171,10 +200,6 @@ function selectOffspring(offspringIndex) {
     },
     "species": organismsByRole.offspring.species.name,
     "selected": {
-      "offspringAlleles": organismsByRole.offspring.getAlleleString(),
-      "offspringSex": sexToString(organismsByRole.offspring.sex)
-    },
-    "previous": {
       "offspringAlleles": organismsByRole.offspring.getAlleleString(),
       "offspringSex": sexToString(organismsByRole.offspring.sex)
     },
@@ -277,24 +302,14 @@ $(".dropdown-menu li a").click(function () {
 function onAlleleChanged(role, characteristic, newAllele) {
   // Disabled until we can evaluate moves in breeding challenges
   
-  // console.info("Selected %s's %s -> %s", role, characteristic, newAllele);
+  console.info("Selected %s's %s -> %s", role, characteristic, newAllele);
 
-  // var alleles = organismsByRole[role].getAlleleString();
-  // alleles = BiologicaX.replaceAllele(organismsByRole[role].species, characteristic, alleles, newAllele);
-  // organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
-  // organismsByRole[role].species.makeAlive(organismsByRole[role]);
-  // updateOrganismImage(role);
-
-  // var context = {
-  //   "characteristic": characteristic,
-  //   "allele": newAllele
-  // };
-
-  // SendGuideEvent(
-  //   "USER",
-  //   "CHANGED",
-  //   "ALLELE",
-  //   context);
+  var alleles = organismsByRole[role].getAlleleString();
+  alleles = BiologicaX.replaceAllele(organismsByRole[role].species, characteristic, alleles, newAllele);
+  organismsByRole[role] = new BioLogica.Organism(organismsByRole[role].species, alleles, organismsByRole[role].sex);
+  organismsByRole[role].species.makeAlive(organismsByRole[role]);
+  updateOrganismImage(role);
+  changedParent();
 }
 
 function updateAllelesFromDropdowns(organismDiv, organism) {
