@@ -23,6 +23,7 @@ function initializeUI(characteristics, species) {
   console.info("Initialize Chromosomes challenege");
 
   $('#submitOrganismButton').on("click", submitOrganism);
+  $('#submitOrganismStressButton').on("click", submitOrganismStress);
   $('.randomOrganismButton').each(function () {
     $(this).on("click", randomOrganism);
   });
@@ -43,6 +44,16 @@ function initializeUI(characteristics, species) {
 }
 
 function submitOrganism() {
+  submitOrganismInternal(false);
+}
+
+function submitOrganismStress() { 
+  for (let i = 0; i < 10; ++i) {
+    submitOrganismInternal(true);
+  }
+}
+
+function submitOrganismInternal(suppressPopups) {
 
   updateAllelesFromDropdowns();
   updateSexFromDropdown();
@@ -57,17 +68,19 @@ function submitOrganism() {
   var targetOrganismImage = targetOrganism.getImageName();
   var correct = (myOrganismImage == targetOrganismImage);
 
-  if (correct) {
-    showPopup(
-      'success',
-      'Good work!',
-      'The drake you have created matches the target drake.');
+  if (!suppressPopups) {
+    if (correct) {
+      showPopup(
+        'success',
+        'Good work!',
+        'The drake you have created matches the target drake.');
 
-  } else {
-    showPopup(
-      'error',
-      "That's not the drake!",
-      "The drake you have created doesn't match the target drake. Please try again.");
+    } else {
+      showPopup(
+        'error',
+        "That's not the drake!",
+        "The drake you have created doesn't match the target drake. Please try again.");
+    }
   }
 
   var selectableAttributes = ["sex"].concat(editableCharacteristics);
