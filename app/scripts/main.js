@@ -210,6 +210,7 @@ function initializeUI() {
   $('#title').text(title + ' ' + ClientVersion);
   $('#startSessionButton').on("click", startSession);
   $('#endSessionButton').on("click", endSession);
+  $('#randomUserButton').on("click", randomUser);
 
   $('.modal').on('hidden.bs.modal', function () {
     displayTutorFeedback();
@@ -320,44 +321,31 @@ function endSession() {
   updateSessionStatus(null);
 }
 
+function randomUser() {
+  $('#studentIdInput').val(randomStudentId());
+  $('#classIdInput').val(DefaultClassId);
+  $('#groupIdInput').val(DefaultGroupId);
+  $('#itsDBEndpointInput').val(DefaultItsDBEndpoint);
+}
+
 function getStudentId() {
   var studentId = $('#studentIdInput').val();
-  if (!studentId) {
-    studentId = randomStudentId();
-    $('#studentIdInput').val(studentId);
-  }
-
-  return studentId;
+  return (studentId ? studentId : undefined);
 }
 
 function getClassId() {
   var classId = $('#classIdInput').val();
-  if (!classId) {
-    classId = DefaultClassId;
-    $('#classIdInput').val(classId);
-  }
-
-  return classId;
+  return (classId ? classId : undefined);
 }
 
 function getGroupId() {
   var groupId = $('#groupIdInput').val();
-  if (!groupId) {
-    groupId = DefaultGroupId;
-    $('#groupIdInput').val(groupId);
-  }
-
-  return groupId;
+  return (groupId ? groupId : undefined);
 }
 
 function getItsDBEndpoint() {
   var itsDBEndpoint = $('#itsDBEndpointInput').val();
-  if (!itsDBEndpoint) {
-    itsDBEndpoint = DefaultItsDBEndpoint;
-    $('#itsDBEndpointInput').val(itsDBEndpoint);
-  }
-
-  return itsDBEndpoint;
+  return (itsDBEndpoint ? itsDBEndpoint : undefined);
 }
 
 function updateConnectionStatus(connected, serverUrl) {
